@@ -7,12 +7,16 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.maxstelmakh.ordersfordriver.data.model.Order
 import ru.maxstelmakh.ordersfordriver.databinding.FragmentOrdersBinding
 import ru.maxstelmakh.ordersfordriver.presentation.adapter.OrderAdapter
 
-class OrdersFragment : Fragment() {
+@AndroidEntryPoint
+class OrdersFragment() : Fragment() {
+
     private var _binding: FragmentOrdersBinding? = null
     private val binding get() = _binding!!
 
@@ -33,8 +37,14 @@ class OrdersFragment : Fragment() {
         binding.ordersRecyclerView.adapter = adapter
 
         viewModel.viewModelScope.launch {
-            viewModel.orders.collect {
-                adapter.submitList(it)
+            viewModel.orders.observe(viewLifecycleOwner) { newOrders ->
+
+                val orders = if (newOrders.isNotEmpty()) newOrders as ArrayList<Order>
+
+                else ArrayList()
+                println(orders)
+                println(newOrders)
+                adapter.submitList(orders)
             }
         }
     }

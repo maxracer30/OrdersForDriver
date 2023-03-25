@@ -10,7 +10,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.maxstelmakh.ordersfordriver.data.orderApi.APIOrders
-import ru.maxstelmakh.ordersfordriver.data.orderApi.OrdersRepository
+import ru.maxstelmakh.ordersfordriver.data.orderApi.BaseRepository
+import ru.maxstelmakh.ordersfordriver.domain.repository.OrdersRepository
 
 @Module(includes = [BindLocationModule::class])
 @InstallIn(ViewModelComponent::class)
@@ -46,5 +47,5 @@ class OrdersModule {
 interface BindLocationModule {
 
     @Binds
-    fun bindLocationRepository(repository: OrdersRepository.Base): OrdersRepository
+    fun bindLocationRepository(repository: BaseRepository): OrdersRepository
 }

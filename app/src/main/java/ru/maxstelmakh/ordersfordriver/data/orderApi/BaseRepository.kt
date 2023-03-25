@@ -11,10 +11,10 @@ class BaseRepository @Inject constructor(
         return try {
             val response = apiOrders.orders().execute()
 
-            when (response.isSuccessful) {
-                true -> Result.Success(data = response.body()!!)
-                else -> Result.Failure(statusCode = response.code())
+            if (response.isSuccessful) {
+                return Result.Success(data = response.body()!!)
             }
+            else Result.Failure(statusCode = response.code())
         } catch (e: Exception) {
             Result.Failure(statusCode = 0, message = e.message)
         }
