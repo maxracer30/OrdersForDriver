@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">OrdersForDriver</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="open_order">Open order</string>
+</resources>

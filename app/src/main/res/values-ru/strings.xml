@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OrdersForDriver</string>
+    <string name="open_order">Открыть заказ</string>
+</resources>
