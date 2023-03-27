@@ -7,9 +7,9 @@ import javax.inject.Inject
 class BaseRepository @Inject constructor(
     private val apiOrders: APIOrders
 ) : OrdersRepository {
-    override suspend fun fetchOrders(): Result<List<Order>> {
+    override suspend fun fetchOrders(): Result<Order> {
         return try {
-            val response = apiOrders.orders().execute()
+            val response = apiOrders.order().execute()
 
             if (response.isSuccessful) {
                 return Result.Success(data = response.body()!!)

@@ -8,7 +8,7 @@ import ru.maxstelmakh.ordersfordriver.data.model.Order
 
 interface APIOrders {
     @GET("get_order.php")
-    fun orders(): Call<List<Order>>
+    fun order(): Call<Order>
 
     @POST("set_order.php")
     fun sendChangeOrders(@Body order: Order) {

@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import ru.maxstelmakh.ordersfordriver.data.model.Order
+import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.databinding.FragmentOrdersBinding
 import ru.maxstelmakh.ordersfordriver.presentation.adapter.OrderAdapter
 
@@ -20,8 +20,8 @@ class OrdersFragment() : Fragment() {
     private var _binding: FragmentOrdersBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: OrdersViewModel by viewModels()
-    private val adapter = OrderAdapter()
+    private val viewModel by viewModels<OrdersViewModel>()
+//    private val adapter = OrderAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,17 +34,21 @@ class OrdersFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.ordersRecyclerView.adapter = adapter
+//        binding.ordersRecyclerView.adapter = adapter
 
         viewModel.viewModelScope.launch {
-            viewModel.orders.observe(viewLifecycleOwner) { newOrders ->
+            viewModel.order.collect {
+                with(binding) {
+                    dateOrder.text = it.orderDate
+                    numberOrder.text = it.orderNum
+                    phoneOrder.text = it.phone
+                    open.visibility = View.VISIBLE
+                    open.setOnClickListener {
+                        findNavController().navigate(R.id.action_ordersFragment_to_goodsFragment)
+                    }
+                }
 
-                val orders = if (newOrders.isNotEmpty()) newOrders as ArrayList<Order>
-
-                else ArrayList()
-                println(orders)
-                println(newOrders)
-                adapter.submitList(orders)
+//                adapter.submitList(listOf(it))
             }
         }
     }

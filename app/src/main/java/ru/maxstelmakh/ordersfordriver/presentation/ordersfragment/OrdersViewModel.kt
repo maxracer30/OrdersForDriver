@@ -1,14 +1,11 @@
 package ru.maxstelmakh.ordersfordriver.presentation.ordersfragment
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.model.Order
@@ -21,26 +18,29 @@ class OrdersViewModel @Inject constructor(
     private val getOrdersUseCase: GetOrdersUseCase
 ) : ViewModel() {
 
-    private val _orders = MutableLiveData<List<Order>>()
-    val orders: LiveData<List<Order>> = _orders
+    private val _order = MutableSharedFlow<Order>()
+    val order: SharedFlow<Order> = _order
+
+    private lateinit var originalOrder: Order
+
 
     init {
-        println("s")
-        println("s")
+        getNewOrder()
+    }
+
+    fun getNewOrder(){
         viewModelScope.launch(Dispatchers.IO) {
-            println("Мы во вьюмодели")
             handler(getOrdersUseCase())
         }
     }
 
-
-    private suspend fun handler(result: Result<List<Order>>) = when (result) {
-                is Result.Success -> withContext(Dispatchers.Main) {
-            _orders.value = result.data
+    private suspend fun handler(result: Result<Order>) = when (result) {
+        is Result.Success -> withContext(Dispatchers.Main) {
+            originalOrder = result.data
+            _order.emit(result.data)
         }
 
         is Result.Failure -> withContext(Dispatchers.Main) {
-            _orders.value = emptyList()
         }
     }
 

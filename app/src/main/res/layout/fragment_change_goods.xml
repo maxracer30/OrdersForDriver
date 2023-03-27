@@ -1,9 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.changegoodsfragment.ChangeGoodsFragment">
 
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="15dp"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/article"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name" />
+
+
+    <TextView
+        android:id="@+id/prise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@id/article"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/quantity_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textSize="18sp"
+        android:text="@string/quantity"
+        app:layout_constraintTop_toBottomOf="@id/prise"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/quantity_text"
+        app:layout_constraintBottom_toBottomOf="@id/quantity_text"
+        android:inputType="number"
+        android:importantForAutofill="no"
+        tools:ignore="LabelFor" />
+
+    <TextView
+        android:id="@+id/summ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/quantity"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/reason"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textSize="15sp"
+        android:text="@string/reason"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/quantity"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/reason_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:hint="@string/enter_reason_of_changes"
+        app:layout_constraintTop_toBottomOf="@id/reason"
+        app:layout_constraintStart_toStartOf="parent"
+        android:inputType="text"
+        tools:ignore="Autofill" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/open_goods_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/reason_edit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/photo" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

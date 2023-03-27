@@ -5,5 +5,5 @@ import ru.maxstelmakh.ordersfordriver.data.orderApi.Result
 
 
 interface OrdersRepository {
-    suspend fun fetchOrders(): Result<List<Order>>
+    suspend fun fetchOrders(): Result<Order>
 }
