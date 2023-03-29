@@ -13,7 +13,7 @@ import ru.maxstelmakh.ordersfordriver.data.orderApi.APIOrders
 import ru.maxstelmakh.ordersfordriver.data.orderApi.BaseRepository
 import ru.maxstelmakh.ordersfordriver.domain.repository.OrdersRepository
 
-@Module(includes = [BindLocationModule::class])
+@Module(includes = [BindOrdersModule::class])
 @InstallIn(ViewModelComponent::class)
 class OrdersModule {
 
@@ -44,8 +44,8 @@ class OrdersModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-interface BindLocationModule {
+interface BindOrdersModule {
 
     @Binds
-    fun bindLocationRepository(repository: BaseRepository): OrdersRepository
+    fun bindOrdersRepository(repository: BaseRepository): OrdersRepository
 }

@@ -6,7 +6,8 @@
     tools:context=".presentation.goodsfragment.GoodsFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/ordersRecyclerView"
+        android:id="@+id/goodsRecyclerView"
         android:layout_width="match_parent"
+        tools:listitem="@layout/goods_item"
         android:layout_height="wrap_content" />
 </FrameLayout>

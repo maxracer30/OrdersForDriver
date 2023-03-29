@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OrdersForDriver</string>
+    <string name="app_name">Orders For Driver</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="open_order">Open order</string>
     <string name="open_goods">Open goods</string>
@@ -7,4 +7,6 @@
     <string name="enter_reason_of_changes">Enter reason of changes</string>
     <string name="quantity">Quantity</string>
     <string name="photo">Photo</string>
+    <string name="change_goods">Change goods</string>
+    <string name="complete_order">Order complete</string>
 </resources>

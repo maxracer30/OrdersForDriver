@@ -10,7 +10,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.model.Order
 import ru.maxstelmakh.ordersfordriver.data.orderApi.Result
+import ru.maxstelmakh.ordersfordriver.di.OrdersForDriver
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrdersUseCase
+import ru.maxstelmakh.ordersfordriver.presentation.MainActivity
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,13 +23,6 @@ class OrdersViewModel @Inject constructor(
     private val _order = MutableSharedFlow<Order>()
     val order: SharedFlow<Order> = _order
 
-    private lateinit var originalOrder: Order
-
-
-    init {
-        getNewOrder()
-    }
-
     fun getNewOrder(){
         viewModelScope.launch(Dispatchers.IO) {
             handler(getOrdersUseCase())
@@ -36,12 +31,10 @@ class OrdersViewModel @Inject constructor(
 
     private suspend fun handler(result: Result<Order>) = when (result) {
         is Result.Success -> withContext(Dispatchers.Main) {
-            originalOrder = result.data
             _order.emit(result.data)
         }
 
         is Result.Failure -> withContext(Dispatchers.Main) {
         }
     }
-
 }

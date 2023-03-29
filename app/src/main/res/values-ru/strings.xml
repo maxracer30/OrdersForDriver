@@ -2,4 +2,11 @@
 <resources>
     <string name="app_name">OrdersForDriver</string>
     <string name="open_order">Открыть заказ</string>
+    <string name="open_goods">Показать товары</string>
+    <string name="reason">Причина</string>
+    <string name="enter_reason_of_changes">Введите причину изменения</string>
+    <string name="quantity">Количество</string>
+    <string name="photo">Фотография</string>
+    <string name="change_goods">Изменить товары</string>
+    <string name="complete_order">Доставлен</string>
 </resources>
