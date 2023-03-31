@@ -4,9 +4,9 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 data class Goods(
-    @SerializedName("article") val article: Long,
-    @SerializedName("name") val name: String,
-    @SerializedName("quantity") val quantity: Int,
-    @SerializedName("price") val price: Float,
-    @SerializedName("summ") val summ: Float
+    @SerializedName("article") var article: Long,
+    @SerializedName("name") var name: String,
+    @SerializedName("quantity") var quantity: Int,
+    @SerializedName("price") var price: Float,
+    @SerializedName("summ") var summ: Float
 ) : Serializable

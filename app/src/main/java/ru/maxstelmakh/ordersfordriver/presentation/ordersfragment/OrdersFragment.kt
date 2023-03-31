@@ -116,7 +116,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
             translationY = 0f
             alpha = 1.0f
             animate()
-                .translationY(-100f)
+                .translationY(-200f)
                 .alpha(0.0f)
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
@@ -138,7 +138,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         )
         goodsRecyclerView.apply {
             visibility = View.VISIBLE
-            translationY = -100f
+            translationY = -200f
             alpha = 0.0f
             animate()
                 .translationY(0f)
@@ -149,12 +149,8 @@ class OrdersFragment : Fragment(), GoodsClickListener {
     }
 
     override fun onClick(goods: Goods) {
-        ChangeGoodsFragment(
-            onConfirmClickListener = { count ->
-                Toast.makeText(context, count, Toast.LENGTH_SHORT).show()
-            },
-            goods = goods
-        ).show(parentFragmentManager, "Dialog")
+        viewModel.goodsToChange = goods
+        ChangeGoodsFragment().show(parentFragmentManager, "Dialog")
     }
 
     private fun res(id: Int) = resources.getString(id)

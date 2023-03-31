@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -14,22 +15,18 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import ru.maxstelmakh.ordersfordriver.R
-import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.ChangeDialogBinding
 import ru.maxstelmakh.ordersfordriver.presentation.ordersfragment.OrdersViewModel
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
-class ChangeGoodsFragment(
-    private val goods: Goods,
-    private val onConfirmClickListener: (Int) -> Unit
-) : DialogFragment() {
+class ChangeGoodsFragment() : DialogFragment() {
 
     private lateinit var binding: ChangeDialogBinding
 
     private val viewModel by viewModels<OrdersViewModel>()
 
-    val changedGoods = goods
+    val goods = viewModel.goodsToChange
 
     @SuppressLint("UseGetLayoutInflater")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -52,24 +49,26 @@ class ChangeGoodsFragment(
             decreaseCount.setOnClickListener { decreaseInteger() }
 
             etCount.doAfterTextChanged {
-                when (etCount.text.toString()) {
-                    "" -> {}
-                    else -> {
+                when (etCount.text.toString().toIntOrNull()) {
+                    is Int -> {
                         visibilityChangingFields()
                         changeSum()
                         decreaseBtnActive()
                     }
+                    else -> {}
                 }
             }
 
             confirmBtn.setOnClickListener {
-                onConfirmClickListener(etCount.text.toString().toInt())
+                viewModel.saveGoods()
                 dismiss()
             }
         }
 
         val dialog = builder.create()
         dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window!!.setGravity(Gravity.TOP)
+
         return dialog
     }
 
@@ -93,13 +92,28 @@ class ChangeGoodsFragment(
     }
 
     private fun increaseInteger() = with(binding) {
-        val newCount = etCount.text.toString().toInt() + 1
-        etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
+
+        when (etCount.text.toString().toIntOrNull()) {
+            is Int -> {
+                val newCount = etCount.text.toString().toInt() + 1
+                etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
+            }
+            else -> {
+                etCount.setText(goods.quantity.toString(), TextView.BufferType.EDITABLE)
+            }
+        }
     }
 
     private fun decreaseInteger() = with(binding) {
-        val newCount = etCount.text.toString().toInt() - 1
-        etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
+        when (etCount.text.toString().toIntOrNull()) {
+            is Int -> {
+                val newCount = etCount.text.toString().toInt() - 1
+                etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
+            }
+            else -> {
+                etCount.setText(goods.quantity.toString(), TextView.BufferType.EDITABLE)
+            }
+        }
     }
 
     private fun decreaseBtnActive() = with(binding) {
