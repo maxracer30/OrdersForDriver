@@ -1,6 +1,7 @@
-package ru.maxstelmakh.ordersfordriver.data.model
+package ru.maxstelmakh.ordersfordriver.data.orderApi.model
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class Goods(
     @SerializedName("article") val article: Long,
@@ -8,4 +9,4 @@ data class Goods(
     @SerializedName("quantity") val quantity: Int,
     @SerializedName("price") val price: Float,
     @SerializedName("summ") val summ: Float
-)
+) : Serializable

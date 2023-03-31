@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ru.maxstelmakh.ordersfordriver.R
-import ru.maxstelmakh.ordersfordriver.data.model.Order
+import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

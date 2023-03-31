@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_ordersFragment_to_goodsFragment"
             app:destination="@id/goodsFragment" />
+        <action
+            android:id="@+id/action_ordersFragment_to_changeGoodsFragment"
+            app:destination="@id/changeGoodsFragment" />
     </fragment>
     <fragment
         android:id="@+id/goodsFragment"
@@ -22,10 +25,17 @@
         <action
             android:id="@+id/action_goodsFragment_to_changeGoodsFragment"
             app:destination="@id/changeGoodsFragment" />
+        <action
+            android:id="@+id/action_goodsFragment_to_ordersFragment"
+            app:destination="@id/ordersFragment" />
     </fragment>
     <fragment
         android:id="@+id/changeGoodsFragment"
         android:name="ru.maxstelmakh.ordersfordriver.presentation.changegoodsfragment.ChangeGoodsFragment"
         android:label="fragment_change_goods"
-        tools:layout="@layout/fragment_change_goods" />
+        tools:layout="@layout/fragment_change_goods" >
+        <action
+            android:id="@+id/action_changeGoodsFragment_to_goodsFragment"
+            app:destination="@id/goodsFragment" />
+    </fragment>
 </navigation>

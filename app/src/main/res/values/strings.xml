@@ -5,8 +5,21 @@
     <string name="open_goods">Open goods</string>
     <string name="reason">Reason</string>
     <string name="enter_reason_of_changes">Enter reason of changes</string>
-    <string name="quantity">Quantity</string>
+    <string name="quantity">"Quantity: "</string>
     <string name="photo">Photo</string>
-    <string name="change_goods">Change goods</string>
+    <string name="change_goods">Show goods</string>
     <string name="complete_order">Order complete</string>
+    <string name="perPiece"> per piece</string>
+    <string name="summary">Sum: </string>
+    <string name="date">Date</string>
+    <string name="orderer_number">"Orderer num.: "</string>
+    <string name="order_number">"Order num.: "</string>
+    <string name="goods_count">"Goods cnt.: "</string>
+    <string name="hide_goods">Hide goods</string>
+    <string name="changing_item">Changing item</string>
+    <string name="count">Count</string>
+    <string name="confirm">Confirm</string>
+    <string name="minus">-</string>
+    <string name="plus">+</string>
+    <string name="estim_amount">Estimated amount: </string>
 </resources>

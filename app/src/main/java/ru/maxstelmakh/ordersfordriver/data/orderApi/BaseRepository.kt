@@ -1,6 +1,6 @@
 package ru.maxstelmakh.ordersfordriver.data.orderApi
 
-import ru.maxstelmakh.ordersfordriver.data.model.Order
+import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
 import ru.maxstelmakh.ordersfordriver.domain.repository.OrdersRepository
 import javax.inject.Inject
 

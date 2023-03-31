@@ -1,4 +1,4 @@
-package ru.maxstelmakh.ordersfordriver.data.model
+package ru.maxstelmakh.ordersfordriver.data.orderApi.model
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
