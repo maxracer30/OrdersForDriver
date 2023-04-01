@@ -124,6 +124,16 @@
                     android:textSize="18sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:id="@+id/tvAttention"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tilReason" />
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_photo1"
                 android:layout_width="wrap_content"
@@ -131,7 +141,7 @@
                 android:layout_marginTop="14dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/card_photo2"
-                app:layout_constraintTop_toBottomOf="@id/tilReason">
+                app:layout_constraintTop_toBottomOf="@id/tvAttention">
 
 
                 <ImageView
@@ -151,7 +161,7 @@
                 android:layout_marginTop="14dp"
                 app:layout_constraintEnd_toStartOf="@id/card_photo3"
                 app:layout_constraintStart_toEndOf="@+id/card_photo1"
-                app:layout_constraintTop_toBottomOf="@id/tilReason">
+                app:layout_constraintTop_toBottomOf="@id/tvAttention">
 
                 <ImageView
                     android:id="@+id/photo2"
@@ -170,7 +180,7 @@
                 android:layout_marginTop="14dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/card_photo2"
-                app:layout_constraintTop_toBottomOf="@id/tilReason">
+                app:layout_constraintTop_toBottomOf="@id/tvAttention">
 
                 <ImageView
                     android:id="@+id/photo3"

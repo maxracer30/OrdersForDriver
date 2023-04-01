@@ -9,5 +9,6 @@
     <color name="black">#000000</color>
     <color name="pastel_yellow">#D8D89A</color>
     <color name="white">#FFFFFF</color>
+    <color name="red">#FF0000</color>
 
 </resources>
