@@ -3,13 +3,20 @@ package ru.maxstelmakh.ordersfordriver.presentation.changegoodsfragment
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaScannerConnection
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
@@ -18,7 +25,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.ChangeDialogBinding
-import kotlin.math.roundToInt
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.*
+
 
 @AndroidEntryPoint
 class ChangeGoodsFragment(
@@ -27,14 +39,22 @@ class ChangeGoodsFragment(
     private val changedGoodsListener: (Goods) -> Unit
 ) : DialogFragment() {
 
-    private lateinit var binding: ChangeDialogBinding
+    companion object {
+        private const val REQUEST_TAKE_PHOTO = 0
+        private const val REQUEST_SELECT_IMAGE_IN_ALBUM = 1
+        private const val CAMERA_PERMISSION_CODE = 100
+        private const val STORAGE_PERMISSION_CODE = 101
+    }
+
+    private var _binding: ChangeDialogBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel by viewModels<ChangeViewModel>()
 
     @SuppressLint("UseGetLayoutInflater")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-        binding = ChangeDialogBinding.inflate(LayoutInflater.from(context))
+        _binding = ChangeDialogBinding.inflate(LayoutInflater.from(context))
 
         viewModel.originalGoods = originalGoods
         viewModel.changedGoods = goodsToChange
@@ -42,6 +62,14 @@ class ChangeGoodsFragment(
         val builder = AlertDialog.Builder(requireActivity())
 
         builder.setView(binding.root)
+
+        binding.cardPhoto1.setOnClickListener {
+            takePhoto()
+        }
+
+        binding.cardPhoto2.setOnClickListener {
+            selectImageInAlbum()
+        }
 
         setGoodsToView()
 
@@ -90,11 +118,10 @@ class ChangeGoodsFragment(
                     dismiss()
                 }
                 false -> {
-                    if(etReason.isVisible && etReason.text.toString().isNotBlank()) {
+                    if (etReason.isVisible && etReason.text.toString().isNotBlank()) {
                         changedGoodsListener(viewModel.changedGoods)
                         dismiss()
-                    }
-                    else {
+                    } else {
                         tvAttention.text = res(R.string.attention)
                         tvAttention.visibility = View.VISIBLE
                     }
@@ -165,11 +192,16 @@ class ChangeGoodsFragment(
         tvSumm.text =
             when (checkCount()) {
                 true -> buildString { append(res(R.string.summary), originalGoods.summ.toString()) }
-                false -> buildString { append(res(R.string.estim_amount), viewModel.changedGoods.summ.toString()) }
+                false -> buildString {
+                    append(
+                        res(R.string.estim_amount),
+                        viewModel.changedGoods.summ.toString()
+                    )
+                }
             }
     }
 
-            // Проверка вводимого числа на соответствие типу Int
+    // Проверка вводимого числа на соответствие типу Int
     private fun checkCountIsInt(): Boolean {
         return when (binding.etCount.text.toString().toIntOrNull()) {
             is Int -> true
@@ -179,13 +211,107 @@ class ChangeGoodsFragment(
 
     //Проверка количества товаров на равность к исходному зачению
     private fun checkCount(): Boolean {
-        return when(checkCountIsInt()) {
+        return when (checkCountIsInt()) {
             true -> originalGoods.quantity == binding.etCount.text.toString().toInt()
             else -> false
         }
     }
 
 
-    // Доступ к ресурсам
+    private fun selectImageInAlbum() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent, REQUEST_SELECT_IMAGE_IN_ALBUM)
+        }
+    }
+
+    private fun takePhoto() {
+        val intent1 = Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE)
+        if (intent1.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent1, REQUEST_TAKE_PHOTO)
+        }
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        super.onActivityResult(requestCode, resultCode, data)
+        /* if (resultCode == this.RESULT_CANCELED)
+         {
+         return
+         }*/
+        if (requestCode == REQUEST_SELECT_IMAGE_IN_ALBUM) {
+            if (data != null) {
+                val contentURI = data.data
+                try {
+                    val bitmap = MediaStore.Images.Media.getBitmap(
+                        requireActivity().contentResolver,
+                        contentURI
+                    )
+                    val path = saveImage(bitmap)
+                    Toast.makeText(requireContext(), "Image Saved!", Toast.LENGTH_SHORT).show()
+                    binding.photo2.setImageBitmap(bitmap)
+
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    Toast.makeText(requireContext(), "Failed!", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+
+        } else if (requestCode == REQUEST_TAKE_PHOTO) {
+            val thumbnail = data!!.extras!!.get("data") as Bitmap
+            binding.photo1.setImageBitmap(thumbnail)
+            saveImage(thumbnail)
+            Toast.makeText(requireContext(), "Image Saved!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun saveImage(myBitmap: Bitmap): String {
+        val bytes = ByteArrayOutputStream()
+        myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes)
+        val wallpaperDirectory = File(
+            (Environment.getExternalStorageDirectory()).toString()
+        )
+        // have the object build the directory structure, if needed.
+        Log.d("fee", wallpaperDirectory.toString())
+        if (!wallpaperDirectory.exists()) {
+
+            wallpaperDirectory.mkdirs()
+        }
+
+        try {
+            Log.d("heel", wallpaperDirectory.toString())
+            val f = File(
+                wallpaperDirectory, ((Calendar.getInstance()
+                    .getTimeInMillis()).toString() + ".jpg")
+            )
+            f.createNewFile()
+            val fo = FileOutputStream(f)
+            fo.write(bytes.toByteArray())
+            MediaScannerConnection.scanFile(
+                requireContext(),
+                arrayOf(f.path),
+                arrayOf("image/jpeg"), null
+            )
+            fo.close()
+            Log.d("TAG", "File Saved::--->" + f.getAbsolutePath())
+
+            return f.getAbsolutePath()
+        } catch (e1: IOException) {
+            e1.printStackTrace()
+        }
+
+        return ""
+    }
+
+    // Доступ к строковым ресурсам
     private fun res(id: Int) = resources.getString(id)
+
+    // Зануляем binding
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }

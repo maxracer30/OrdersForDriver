@@ -54,6 +54,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         setOrderDataToView()
     }
 
+    // Устанавливает данные заказа во вьюшку
     private fun setOrderDataToView() = with(binding) {
 
         viewModel.viewModelScope.launch(Dispatchers.IO) {
@@ -88,6 +89,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
     }
 
 
+    // Изменение видимости некоторых элементов
     private fun setVisibilityOnView() = with(binding) {
 
         progressBar.visibility = View.GONE
@@ -109,6 +111,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
+    // Управляет сокрытием RecyclerView
     private fun hideRecyclerView() = with(binding) {
         openButton.text = res(R.string.open_goods)
         goodsRecyclerView.apply {
@@ -127,7 +130,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-
+    // Управляет отображением RecyclerView
     private fun showRecyclerView() = with(binding) {
         goodsRecyclerView.adapter = goodsAdapter
         goodsRecyclerView.addItemDecoration(
@@ -148,6 +151,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         openButton.text = res(R.string.hide_goods)
     }
 
+    // Слушатель нажатий на товар в RecyclerView
     override fun onClick(goods: Goods) {
         viewModel.changedGoods = goods
 
@@ -161,8 +165,10 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         ).show(parentFragmentManager, "Dialog")
     }
 
+    // Для доступа к строковым ресурсам
     private fun res(id: Int) = resources.getString(id)
 
+    // Зануляем binding
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
