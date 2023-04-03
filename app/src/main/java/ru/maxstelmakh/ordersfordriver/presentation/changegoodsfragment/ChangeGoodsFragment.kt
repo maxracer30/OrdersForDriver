@@ -1,17 +1,19 @@
+@file:Suppress("DEPRECATION")
+
 package ru.maxstelmakh.ordersfordriver.presentation.changegoodsfragment
 
 import android.annotation.SuppressLint
+import android.app.Activity.MODE_PRIVATE
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.media.MediaScannerConnection
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
+import android.system.ErrnoException
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -21,14 +23,14 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.internal.Contexts.getApplication
+import kotlinx.coroutines.*
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.ChangeDialogBinding
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.util.*
 
 
@@ -40,8 +42,8 @@ class ChangeGoodsFragment(
 ) : DialogFragment() {
 
     companion object {
-        private const val REQUEST_TAKE_PHOTO = 0
-        private const val REQUEST_SELECT_IMAGE_IN_ALBUM = 1
+        private const val TAKE_PHOTO_REQUEST_CODE = 10
+        private const val SELECT_IMAGE_IN_ALBUM_REQUEST_CODE = 11
         private const val CAMERA_PERMISSION_CODE = 100
         private const val STORAGE_PERMISSION_CODE = 101
     }
@@ -63,14 +65,6 @@ class ChangeGoodsFragment(
 
         builder.setView(binding.root)
 
-        binding.cardPhoto1.setOnClickListener {
-            takePhoto()
-        }
-
-        binding.cardPhoto2.setOnClickListener {
-            selectImageInAlbum()
-        }
-
         setGoodsToView()
 
         val dialog = builder.create()
@@ -80,7 +74,8 @@ class ChangeGoodsFragment(
         return dialog
     }
 
-    //Устанавливает значения на вьюшку
+    //Устанавливает значения в вьюшку
+    @SuppressLint("NewApi")
     private fun setGoodsToView() = with(binding) {
 
 
@@ -110,6 +105,13 @@ class ChangeGoodsFragment(
             }
         }
 
+        cameraBtn.setOnClickListener {
+            takePhoto()
+        }
+
+        galleryBtn.setOnClickListener {
+            selectImageInAlbum()
+        }
 
         confirmBtn.setOnClickListener {
             when (checkCount()) {
@@ -124,6 +126,9 @@ class ChangeGoodsFragment(
                     } else {
                         tvAttention.text = res(R.string.attention)
                         tvAttention.visibility = View.VISIBLE
+                        cardPhoto1.cardElevation = 70f
+                        cardPhoto1.outlineSpotShadowColor = Color.RED
+                        cardPhoto1.alpha = 1f
                     }
                 }
             }
@@ -135,16 +140,18 @@ class ChangeGoodsFragment(
         when (checkCount()) {
             true -> {
                 cardPhoto1.visibility = View.GONE
-                cardPhoto2.visibility = View.GONE
-                cardPhoto3.visibility = View.GONE
+                cameraBtn.visibility = View.GONE
+                galleryBtn.visibility = View.GONE
                 tilReason.visibility = View.GONE
                 tvAttention.visibility = View.GONE
+                cardPhoto1.cardElevation = 0f
             }
             false -> {
                 cardPhoto1.visibility = View.VISIBLE
-                cardPhoto2.visibility = View.VISIBLE
-                cardPhoto3.visibility = View.VISIBLE
+                cameraBtn.visibility = View.VISIBLE
+                galleryBtn.visibility = View.VISIBLE
                 tilReason.visibility = View.VISIBLE
+                loadPhoto()
             }
         }
 
@@ -218,92 +225,102 @@ class ChangeGoodsFragment(
     }
 
 
+    // Выбор фото из галереи
     private fun selectImageInAlbum() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
-            startActivityForResult(intent, REQUEST_SELECT_IMAGE_IN_ALBUM)
+            startActivityForResult(intent, SELECT_IMAGE_IN_ALBUM_REQUEST_CODE)
         }
     }
 
+    // Сделать фото
     private fun takePhoto() {
-        val intent1 = Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE)
-        if (intent1.resolveActivity(requireActivity().packageManager) != null) {
-            startActivityForResult(intent1, REQUEST_TAKE_PHOTO)
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE)
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent, TAKE_PHOTO_REQUEST_CODE)
         }
     }
 
 
+    // Обрабатывает результат фото
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         super.onActivityResult(requestCode, resultCode, data)
-        /* if (resultCode == this.RESULT_CANCELED)
-         {
-         return
-         }*/
-        if (requestCode == REQUEST_SELECT_IMAGE_IN_ALBUM) {
-            if (data != null) {
-                val contentURI = data.data
-                try {
-                    val bitmap = MediaStore.Images.Media.getBitmap(
-                        requireActivity().contentResolver,
-                        contentURI
-                    )
-                    val path = saveImage(bitmap)
-                    Toast.makeText(requireContext(), "Image Saved!", Toast.LENGTH_SHORT).show()
-                    binding.photo2.setImageBitmap(bitmap)
 
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    Toast.makeText(requireContext(), "Failed!", Toast.LENGTH_SHORT).show()
+        when (requestCode) {
+            SELECT_IMAGE_IN_ALBUM_REQUEST_CODE -> {
+                data?.let {
+                    val contentURI = it.data
+                    try {
+                        val bitmap = MediaStore.Images.Media.getBitmap(
+                            requireActivity().contentResolver,
+                            contentURI
+                        )
+                        savePhoto(bitmap)
+                        loadPhoto()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
                 }
-
             }
 
-        } else if (requestCode == REQUEST_TAKE_PHOTO) {
-            val thumbnail = data!!.extras!!.get("data") as Bitmap
-            binding.photo1.setImageBitmap(thumbnail)
-            saveImage(thumbnail)
-            Toast.makeText(requireContext(), "Image Saved!", Toast.LENGTH_SHORT).show()
+            TAKE_PHOTO_REQUEST_CODE -> {
+
+                data?.let {
+                    val thumbnail = it.extras?.get("data") as Bitmap
+                    savePhoto(thumbnail)
+                    loadPhoto()
+                }
+            }
+            else -> return
         }
     }
 
-    fun saveImage(myBitmap: Bitmap): String {
-        val bytes = ByteArrayOutputStream()
-        myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes)
-        val wallpaperDirectory = File(
-            (Environment.getExternalStorageDirectory()).toString()
-        )
-        // have the object build the directory structure, if needed.
-        Log.d("fee", wallpaperDirectory.toString())
-        if (!wallpaperDirectory.exists()) {
+    // Сохранение фото
+    private fun savePhoto(bitmap: Bitmap): Boolean {
+        return try {
+            getApplication(activity?.applicationContext)
+                .openFileOutput("${originalGoods.article}.jpg", MODE_PRIVATE).use { stream ->
+                    if (bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)) {
+                        throw IOException("Could'n save bitmap")
+                    }
 
-            wallpaperDirectory.mkdirs()
+                }
+            true
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+            false
         }
+    }
 
+    // Сохранение фото
+    private fun loadPhoto() {
         try {
-            Log.d("heel", wallpaperDirectory.toString())
-            val f = File(
-                wallpaperDirectory, ((Calendar.getInstance()
-                    .getTimeInMillis()).toString() + ".jpg")
-            )
-            f.createNewFile()
-            val fo = FileOutputStream(f)
-            fo.write(bytes.toByteArray())
-            MediaScannerConnection.scanFile(
-                requireContext(),
-                arrayOf(f.path),
-                arrayOf("image/jpeg"), null
-            )
-            fo.close()
-            Log.d("TAG", "File Saved::--->" + f.getAbsolutePath())
-
-            return f.getAbsolutePath()
-        } catch (e1: IOException) {
-            e1.printStackTrace()
+            var savedBitmap: Bitmap?
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                try{
+                    savedBitmap = BitmapFactory.decodeStream(
+                        getApplication(activity?.applicationContext)
+                            .openFileInput("${originalGoods.article}.jpg")
+                            .readBytes()
+                            .inputStream()
+                    )
+                } catch (e: Exception) {
+                    savedBitmap = null
+                    e.printStackTrace()
+                }
+                withContext(Dispatchers.Main) {
+                    savedBitmap?.let {
+                        binding.photo1.setImageBitmap(it)
+                    }
+                }
+            }
+        } catch (e: ErrnoException) {
+            e.printStackTrace()
         }
-
-        return ""
     }
 
     // Доступ к строковым ресурсам

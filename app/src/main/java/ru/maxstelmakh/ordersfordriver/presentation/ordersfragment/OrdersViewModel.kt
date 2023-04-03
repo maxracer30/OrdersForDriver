@@ -11,12 +11,12 @@ import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.orderApi.Result
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
-import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrdersUseCase
+import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
-    private val getOrdersUseCase: GetOrdersUseCase
+    private val getOrderUseCase: GetOrderUseCase
 ) : ViewModel() {
 
     private val _order = MutableSharedFlow<List<Order>>()
@@ -33,7 +33,7 @@ class OrdersViewModel @Inject constructor(
 
     private fun getNewOrder() {
         viewModelScope.launch(Dispatchers.IO) {
-            handler(getOrdersUseCase())
+            handler(getOrderUseCase())
         }
     }
 
@@ -43,11 +43,7 @@ class OrdersViewModel @Inject constructor(
                 originalOrder = it
                 changedOrder = it
 
-                println("init.origOrder \n $originalOrder")
-                println("init.changOrder \n $changedOrder")
                 _order.emit(listOf(it))
-
-
             }
         }
 
@@ -68,9 +64,6 @@ class OrdersViewModel @Inject constructor(
 
     fun saveGoods() {
 
-        println("save1.origOrder \n $originalOrder")
-        println("save1.changOrder \n $changedOrder")
-
         viewModelScope.launch(Dispatchers.IO) {
 
             val changedGoodsPosition =
@@ -90,20 +83,11 @@ class OrdersViewModel @Inject constructor(
                         this[changedGoodsPosition] = changedGoods
                     }
 
-                    println("save2.changedList \n $changedList")
-
-
-
                     changedOrder = originalOrder.copy(
                         goods = changedList
                     )
 
-                    println("save3.origOrder \n $originalOrder")
-                    println("save3.changOrder \n $changedOrder")
-
                     _order.emit(listOf(changedOrder))
-
-
                 }
             }
         }

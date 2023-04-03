@@ -22,5 +22,7 @@
     <string name="minus">-</string>
     <string name="plus">+</string>
     <string name="estim_amount">Estimated amount: </string>
-    <string name="attention">Describe the reason and attach photos</string>
+    <string name="attention">Describe the reason and attach photo or return the original quantity</string>
+    <string name="open_gallery">Open gallery</string>
+    <string name="open_camera">Open camera</string>
 </resources>

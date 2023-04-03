@@ -138,70 +138,102 @@
                 android:id="@+id/card_photo1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="20dp"
+                app:cardElevation="10sp"
+                app:cardCornerRadius="12dp"
+                android:alpha="0.2"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/card_photo2"
                 app:layout_constraintTop_toBottomOf="@id/tvAttention">
 
 
                 <ImageView
                     android:id="@+id/photo1"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
                     android:layout_margin="10dp"
                     android:contentDescription="@string/photo"
                     android:src="@drawable/baseline_camera_alt_24" />
             </androidx.cardview.widget.CardView>
 
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_photo2"
+<!--            <androidx.cardview.widget.CardView-->
+<!--                android:id="@+id/open_gallery"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="14dp"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/open_camera"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/tvAttention">-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/photo2"-->
+<!--                    android:layout_width="30dp"-->
+<!--                    android:layout_height="30dp"-->
+<!--                    android:layout_margin="10dp"-->
+<!--                    android:contentDescription="@string/photo"-->
+<!--                    android:src="@drawable/baseline_camera_alt_24" />-->
+<!--            </androidx.cardview.widget.CardView>-->
+
+
+<!--            <androidx.cardview.widget.CardView-->
+<!--                android:id="@+id/open_camera"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="14dp"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/tvAttention">-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/photo3"-->
+<!--                    android:layout_width="30dp"-->
+<!--                    android:layout_height="30dp"-->
+<!--                    android:layout_margin="10dp"-->
+<!--                    android:contentDescription="@string/photo"-->
+<!--                    android:src="@drawable/baseline_camera_alt_24" />-->
+
+<!--            </androidx.cardview.widget.CardView>-->
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/gallery_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                app:layout_constraintEnd_toStartOf="@id/card_photo3"
-                app:layout_constraintStart_toEndOf="@+id/card_photo1"
-                app:layout_constraintTop_toBottomOf="@id/tvAttention">
-
-                <ImageView
-                    android:id="@+id/photo2"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="10dp"
-                    android:contentDescription="@string/photo"
-                    android:src="@drawable/baseline_camera_alt_24" />
-            </androidx.cardview.widget.CardView>
-
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_photo3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:gravity="center"
+                android:paddingVertical="9dp"
+                android:text="@string/open_gallery"
+                android:visibility="visible"
+                app:cornerRadius="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/card_photo2"
-                app:layout_constraintTop_toBottomOf="@id/tvAttention">
+                app:layout_constraintTop_toBottomOf="@id/tvAttention" />
 
-                <ImageView
-                    android:id="@+id/photo3"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="10dp"
-                    android:contentDescription="@string/photo"
-                    android:src="@drawable/baseline_camera_alt_24" />
-
-            </androidx.cardview.widget.CardView>
-
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/camera_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:gravity="center"
+                android:paddingVertical="9dp"
+                android:text="@string/open_camera"
+                android:visibility="visible"
+                app:cornerRadius="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/gallery_btn" />
 
             <TextView
                 android:id="@+id/tv_summ"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_marginHorizontal="16dp"
                 android:text="@string/changing_item"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/card_photo3" />
+                app:layout_constraintTop_toBottomOf="@id/card_photo1"
+                app:layout_constraintBottom_toTopOf="@id/confirmBtn" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/confirmBtn"

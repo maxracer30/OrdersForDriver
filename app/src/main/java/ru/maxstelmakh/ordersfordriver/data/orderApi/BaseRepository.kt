@@ -1,7 +1,7 @@
 package ru.maxstelmakh.ordersfordriver.data.orderApi
 
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
-import ru.maxstelmakh.ordersfordriver.domain.repository.OrdersRepository
+import ru.maxstelmakh.ordersfordriver.domain.repositories.OrdersRepository
 import javax.inject.Inject
 
 class BaseRepository @Inject constructor(

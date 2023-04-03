@@ -11,7 +11,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.maxstelmakh.ordersfordriver.data.orderApi.APIOrders
 import ru.maxstelmakh.ordersfordriver.data.orderApi.BaseRepository
-import ru.maxstelmakh.ordersfordriver.domain.repository.OrdersRepository
+import ru.maxstelmakh.ordersfordriver.data.orderApi.implusecases.DefaultGetOrder
+import ru.maxstelmakh.ordersfordriver.domain.repositories.OrdersRepository
+import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
 
 @Module(includes = [BindOrdersModule::class])
 @InstallIn(ViewModelComponent::class)
@@ -48,4 +50,9 @@ interface BindOrdersModule {
 
     @Binds
     fun bindOrdersRepository(repository: BaseRepository): OrdersRepository
+
+
+    @Binds
+    fun provideNewOrder(impl: DefaultGetOrder): GetOrderUseCase
+
 }

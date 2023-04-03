@@ -1,4 +1,4 @@
-package ru.maxstelmakh.ordersfordriver.domain.repository
+package ru.maxstelmakh.ordersfordriver.domain.repositories
 
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
 import ru.maxstelmakh.ordersfordriver.data.orderApi.Result

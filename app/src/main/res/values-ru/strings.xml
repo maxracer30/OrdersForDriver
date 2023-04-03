@@ -22,5 +22,7 @@
     <string name="minus">-</string>
     <string name="plus">+</string>
     <string name="estim_amount">"Предположительная сумма: "</string>
-    <string name="attention">Опишите причину и прикрепите 1-3 фото</string>
+    <string name="attention">Опишите причину и прикрепите фото или верните изначальное количество товара</string>
+    <string name="open_gallery">Галерея</string>
+    <string name="open_camera">Камера</string>
 </resources>
