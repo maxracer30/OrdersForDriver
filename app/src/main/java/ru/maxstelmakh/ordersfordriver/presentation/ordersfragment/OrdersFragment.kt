@@ -98,7 +98,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         completeOrderButton.visibility = View.VISIBLE
 
         completeOrderButton.setOnClickListener {
-            Toast.makeText(context, "Ku-ku", Toast.LENGTH_SHORT).show()
+            viewModel.completeOrder()
         }
 
         var isRecyclerVisible = false

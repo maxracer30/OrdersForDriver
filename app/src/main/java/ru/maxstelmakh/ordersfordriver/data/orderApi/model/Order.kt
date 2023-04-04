@@ -9,4 +9,4 @@ data class Order(
     @SerializedName("order_date") var orderDate: String? = null,
     @SerializedName("phone") var phone: String? = null,
     @SerializedName("goods") var goods: List<Goods>? = null,
-) : Serializable
+)

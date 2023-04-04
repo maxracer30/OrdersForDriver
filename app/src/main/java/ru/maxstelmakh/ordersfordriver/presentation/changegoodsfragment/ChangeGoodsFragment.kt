@@ -1,31 +1,26 @@
 @file:Suppress("DEPRECATION")
+@file:SuppressLint("NewApi")
 
 package ru.maxstelmakh.ordersfordriver.presentation.changegoodsfragment
 
 import android.annotation.SuppressLint
-import android.app.Activity.MODE_PRIVATE
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.provider.MediaStore
-import android.system.ErrnoException
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.internal.Contexts.getApplication
 import kotlinx.coroutines.*
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
@@ -75,7 +70,6 @@ class ChangeGoodsFragment(
     }
 
     //Устанавливает значения в вьюшку
-    @SuppressLint("NewApi")
     private fun setGoodsToView() = with(binding) {
 
 
@@ -105,6 +99,15 @@ class ChangeGoodsFragment(
             }
         }
 
+
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            viewModel.photo.collect { bitmap ->
+                withContext(Dispatchers.Main) {
+                    binding.photo1.setImageBitmap(bitmap)
+                }
+            }
+        }
+
         cameraBtn.setOnClickListener {
             takePhoto()
         }
@@ -120,7 +123,7 @@ class ChangeGoodsFragment(
                     dismiss()
                 }
                 false -> {
-                    if (etReason.isVisible && etReason.text.toString().isNotBlank()) {
+                    if (etReason.text.toString().isNotBlank() && viewModel.checkHavePhoto) {
                         changedGoodsListener(viewModel.changedGoods)
                         dismiss()
                     } else {
@@ -136,6 +139,7 @@ class ChangeGoodsFragment(
     }
 
     //Изменяет видимость фотокарточек и поля ввода причины изменений
+
     private fun visibilityChangingFields() = with(binding) {
         when (checkCount()) {
             true -> {
@@ -151,7 +155,8 @@ class ChangeGoodsFragment(
                 cameraBtn.visibility = View.VISIBLE
                 galleryBtn.visibility = View.VISIBLE
                 tilReason.visibility = View.VISIBLE
-                loadPhoto()
+                cardPhoto1.outlineSpotShadowColor = Color.GRAY
+                viewModel.loadPhoto(goodsToChange.article.toString())
             }
         }
 
@@ -227,6 +232,8 @@ class ChangeGoodsFragment(
 
     // Выбор фото из галереи
     private fun selectImageInAlbum() {
+
+
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
@@ -258,70 +265,76 @@ class ChangeGoodsFragment(
                             requireActivity().contentResolver,
                             contentURI
                         )
-                        savePhoto(bitmap)
-                        loadPhoto()
+
+                        viewModel.savePhoto(
+                            name = originalGoods.article.toString(),
+                            bitmap = bitmap
+                        )
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                 }
             }
 
+
             TAKE_PHOTO_REQUEST_CODE -> {
 
                 data?.let {
                     val thumbnail = it.extras?.get("data") as Bitmap
-                    savePhoto(thumbnail)
-                    loadPhoto()
+                    viewModel.savePhoto(
+                        name = originalGoods.article.toString(),
+                        bitmap = thumbnail
+                    )
                 }
             }
             else -> return
         }
     }
-
-    // Сохранение фото
-    private fun savePhoto(bitmap: Bitmap): Boolean {
-        return try {
-            getApplication(activity?.applicationContext)
-                .openFileOutput("${originalGoods.article}.jpg", MODE_PRIVATE).use { stream ->
-                    if (bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)) {
-                        throw IOException("Could'n save bitmap")
-                    }
-
-                }
-            true
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-            false
-        }
-    }
-
-    // Сохранение фото
-    private fun loadPhoto() {
-        try {
-            var savedBitmap: Bitmap?
-            viewModel.viewModelScope.launch(Dispatchers.IO) {
-                try{
-                    savedBitmap = BitmapFactory.decodeStream(
-                        getApplication(activity?.applicationContext)
-                            .openFileInput("${originalGoods.article}.jpg")
-                            .readBytes()
-                            .inputStream()
-                    )
-                } catch (e: Exception) {
-                    savedBitmap = null
-                    e.printStackTrace()
-                }
-                withContext(Dispatchers.Main) {
-                    savedBitmap?.let {
-                        binding.photo1.setImageBitmap(it)
-                    }
-                }
-            }
-        } catch (e: ErrnoException) {
-            e.printStackTrace()
-        }
-    }
+//
+//    // Сохранение фото
+//    private fun savePhoto(bitmap: Bitmap): Boolean {
+//        return try {
+//            getApplication(activity?.applicationContext)
+//                .openFileOutput("${originalGoods.article}.jpg", MODE_PRIVATE).use { stream ->
+//                    if (bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)) {
+//                        throw IOException("Could not save bitmap")
+//                    }
+//
+//                }
+//            true
+//
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//            false
+//        }
+//    }
+//
+//    // Загрузка фото
+//    private fun loadPhoto() {
+//        try {
+//            var savedBitmap: Bitmap?
+//            viewModel.viewModelScope.launch(Dispatchers.IO) {
+//                try {
+//                    savedBitmap = BitmapFactory.decodeStream(
+//                        getApplication(activity?.applicationContext)
+//                            .openFileInput("${originalGoods.article}.jpg")
+//                            .readBytes()
+//                            .inputStream()
+//                    )
+//                } catch (e: Exception) {
+//                    savedBitmap = null
+//                    e.printStackTrace()
+//                }
+//                withContext(Dispatchers.Main) {
+//                    savedBitmap?.let {
+//                        binding.photo1.setImageBitmap(it)
+//                    }
+//                }
+//            }
+//        } catch (e: ErrnoException) {
+//            e.printStackTrace()
+//        }
+//    }
 
     // Доступ к строковым ресурсам
     private fun res(id: Int) = resources.getString(id)

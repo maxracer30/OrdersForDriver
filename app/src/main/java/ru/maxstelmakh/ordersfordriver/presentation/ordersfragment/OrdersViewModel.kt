@@ -11,19 +11,21 @@ import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.orderApi.Result
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
+import ru.maxstelmakh.ordersfordriver.domain.repositories.PictureRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
-    private val getOrderUseCase: GetOrderUseCase
+    private val getOrderUseCase: GetOrderUseCase,
+    private val repository: PictureRepository
 ) : ViewModel() {
 
     private val _order = MutableSharedFlow<List<Order>>()
     val order: SharedFlow<List<Order>> = _order
 
-    private lateinit var originalOrder: Order
-    private lateinit var changedOrder: Order
+    lateinit var originalOrder: Order
+    lateinit var changedOrder: Order
 
     lateinit var changedGoods: Goods
 
@@ -53,6 +55,38 @@ class OrdersViewModel @Inject constructor(
         }
     }
 
+    fun saveGoods() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val changedGoodsPosition =
+                changedOrder.goods?.let { list ->
+                    list.indexOfFirst { it.article == changedGoods.article }
+                }!!
+
+            when (changedGoods) {
+                changedOrder.goods!![changedGoodsPosition] -> return@launch
+                else -> {
+                    val changedList: List<Goods> = changedOrder.goods?.toMutableList()!!.apply {
+                        this[changedGoodsPosition] = changedGoods
+                    }
+
+                    changedOrder = originalOrder.copy(goods = changedList)
+
+                    _order.emit(listOf(changedOrder))
+
+                    println(originalOrder.goods)
+                    println(changedOrder.goods)
+                }
+            }
+        }
+    }
+
+    fun completeOrder() {
+        when (originalOrder.goods == changedOrder.goods) {
+            true -> {}
+            false -> {}
+        }
+    }
+
     fun getOriginalGoods(): Goods {
         val changedGoodsPosition =
             changedOrder.goods?.let { list ->
@@ -60,36 +94,5 @@ class OrdersViewModel @Inject constructor(
             }!!
 
         return originalOrder.goods!![changedGoodsPosition]
-    }
-
-    fun saveGoods() {
-
-        viewModelScope.launch(Dispatchers.IO) {
-
-            val changedGoodsPosition =
-                changedOrder.goods?.let { list ->
-                    list.indexOfFirst { it.article == changedGoods.article }
-                }!!
-
-
-
-            when (changedGoods) {
-
-                changedOrder.goods!![changedGoodsPosition] -> return@launch
-
-                else -> {
-
-                    val changedList: List<Goods> = changedOrder.goods?.toMutableList()!!.apply {
-                        this[changedGoodsPosition] = changedGoods
-                    }
-
-                    changedOrder = originalOrder.copy(
-                        goods = changedList
-                    )
-
-                    _order.emit(listOf(changedOrder))
-                }
-            }
-        }
     }
 }

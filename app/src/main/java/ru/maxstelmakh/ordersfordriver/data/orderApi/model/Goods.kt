@@ -9,4 +9,4 @@ data class Goods(
     @SerializedName("quantity") var quantity: Int,
     @SerializedName("price") var price: Double,
     @SerializedName("summ") var summ: Double
-) : Serializable
+)
