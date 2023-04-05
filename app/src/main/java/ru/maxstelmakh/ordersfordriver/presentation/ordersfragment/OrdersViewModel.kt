@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.orderApi.Result
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
 import ru.maxstelmakh.ordersfordriver.domain.repositories.PictureRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
 import javax.inject.Inject
@@ -27,7 +28,9 @@ class OrdersViewModel @Inject constructor(
     lateinit var originalOrder: Order
     lateinit var changedOrder: Order
 
-    lateinit var changedGoods: Goods
+    lateinit var changedGoods: GoodsToChange
+
+    var changeGoodsReasons = HashMap<Long, String>()
 
     init {
         getNewOrder()
@@ -59,22 +62,21 @@ class OrdersViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val changedGoodsPosition =
                 changedOrder.goods?.let { list ->
-                    list.indexOfFirst { it.article == changedGoods.article }
+                    list.indexOfFirst { it.article == changedGoods.item.article }
                 }!!
 
-            when (changedGoods) {
+            when (changedGoods.item) {
                 changedOrder.goods!![changedGoodsPosition] -> return@launch
                 else -> {
                     val changedList: List<Goods> = changedOrder.goods?.toMutableList()!!.apply {
-                        this[changedGoodsPosition] = changedGoods
+                        this[changedGoodsPosition] = changedGoods.item
                     }
+
+                    changeGoodsReasons[changedGoods.item.article] = changedGoods.changeReason
 
                     changedOrder = originalOrder.copy(goods = changedList)
 
                     _order.emit(listOf(changedOrder))
-
-                    println(originalOrder.goods)
-                    println(changedOrder.goods)
                 }
             }
         }
@@ -90,7 +92,7 @@ class OrdersViewModel @Inject constructor(
     fun getOriginalGoods(): Goods {
         val changedGoodsPosition =
             changedOrder.goods?.let { list ->
-                list.indexOfFirst { it.article == changedGoods.article }
+                list.indexOfFirst { it.article == changedGoods.item.article }
             }!!
 
         return originalOrder.goods!![changedGoodsPosition]

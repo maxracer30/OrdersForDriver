@@ -25,6 +25,7 @@ import kotlinx.coroutines.*
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.ChangeDialogBinding
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
 import java.io.*
 import java.util.*
 
@@ -32,7 +33,7 @@ import java.util.*
 @AndroidEntryPoint
 class ChangeGoodsFragment(
     private val originalGoods: Goods,
-    private val goodsToChange: Goods,
+    private val goodsToChange: GoodsToChange,
     private val changedGoodsListener: (Goods) -> Unit
 ) : DialogFragment() {
 
@@ -73,13 +74,15 @@ class ChangeGoodsFragment(
     private fun setGoodsToView() = with(binding) {
 
 
-        val goods = viewModel.changedGoods
+        val goods = viewModel.changedGoods.item
 
 
         tvName.text = goods.name
         tvPrice.text = buildString { append(goods.price.toString(), res(R.string.perPiece)) }
         tvSumm.text = buildString { append(res(R.string.summary), goods.summ.toString()) }
         etCount.setText(goods.quantity.toString(), TextView.BufferType.EDITABLE)
+        etReason.setText(viewModel.changedGoods.changeReason, TextView.BufferType.EDITABLE)
+
 
         visibilityChangingFields()
 
@@ -96,6 +99,15 @@ class ChangeGoodsFragment(
                     decreaseBtnActive()
                 }
                 false -> {}
+            }
+        }
+
+        etReason.doAfterTextChanged {
+            when(etReason.text.isNullOrBlank()) {
+                true -> {}
+                false -> {
+                    viewModel.changedGoods.changeReason = etReason.text.toString()
+                }
             }
         }
 
@@ -124,7 +136,7 @@ class ChangeGoodsFragment(
                 }
                 false -> {
                     if (etReason.text.toString().isNotBlank() && viewModel.checkHavePhoto) {
-                        changedGoodsListener(viewModel.changedGoods)
+                        changedGoodsListener(viewModel.changedGoods.item)
                         dismiss()
                     } else {
                         tvAttention.text = res(R.string.attention)
@@ -156,7 +168,7 @@ class ChangeGoodsFragment(
                 galleryBtn.visibility = View.VISIBLE
                 tilReason.visibility = View.VISIBLE
                 cardPhoto1.outlineSpotShadowColor = Color.GRAY
-                viewModel.loadPhoto(goodsToChange.article.toString())
+                viewModel.loadPhoto(goodsToChange.item.article.toString())
             }
         }
 
@@ -172,7 +184,7 @@ class ChangeGoodsFragment(
                 etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
             }
             else -> {
-                etCount.setText(goodsToChange.quantity.toString(), TextView.BufferType.EDITABLE)
+                etCount.setText(goodsToChange.item.quantity.toString(), TextView.BufferType.EDITABLE)
             }
         }
     }
@@ -185,7 +197,7 @@ class ChangeGoodsFragment(
                 etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
             }
             else -> {
-                etCount.setText(goodsToChange.quantity.toString(), TextView.BufferType.EDITABLE)
+                etCount.setText(goodsToChange.item.quantity.toString(), TextView.BufferType.EDITABLE)
             }
         }
     }
@@ -207,7 +219,7 @@ class ChangeGoodsFragment(
                 false -> buildString {
                     append(
                         res(R.string.estim_amount),
-                        viewModel.changedGoods.summ.toString()
+                        viewModel.changedGoods.item.summ.toString()
                     )
                 }
             }
@@ -290,51 +302,6 @@ class ChangeGoodsFragment(
             else -> return
         }
     }
-//
-//    // Сохранение фото
-//    private fun savePhoto(bitmap: Bitmap): Boolean {
-//        return try {
-//            getApplication(activity?.applicationContext)
-//                .openFileOutput("${originalGoods.article}.jpg", MODE_PRIVATE).use { stream ->
-//                    if (bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)) {
-//                        throw IOException("Could not save bitmap")
-//                    }
-//
-//                }
-//            true
-//
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//            false
-//        }
-//    }
-//
-//    // Загрузка фото
-//    private fun loadPhoto() {
-//        try {
-//            var savedBitmap: Bitmap?
-//            viewModel.viewModelScope.launch(Dispatchers.IO) {
-//                try {
-//                    savedBitmap = BitmapFactory.decodeStream(
-//                        getApplication(activity?.applicationContext)
-//                            .openFileInput("${originalGoods.article}.jpg")
-//                            .readBytes()
-//                            .inputStream()
-//                    )
-//                } catch (e: Exception) {
-//                    savedBitmap = null
-//                    e.printStackTrace()
-//                }
-//                withContext(Dispatchers.Main) {
-//                    savedBitmap?.let {
-//                        binding.photo1.setImageBitmap(it)
-//                    }
-//                }
-//            }
-//        } catch (e: ErrnoException) {
-//            e.printStackTrace()
-//        }
-//    }
 
     // Доступ к строковым ресурсам
     private fun res(id: Int) = resources.getString(id)

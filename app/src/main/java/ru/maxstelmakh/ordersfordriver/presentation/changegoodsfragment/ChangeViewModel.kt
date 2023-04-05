@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
 import ru.maxstelmakh.ordersfordriver.domain.repositories.PictureRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.photousecases.LoadPhotoUseCase
 import ru.maxstelmakh.ordersfordriver.domain.usecases.photousecases.SavePhotoUseCase
@@ -23,7 +24,7 @@ class ChangeViewModel @Inject constructor(
 ) : ViewModel() {
 
     lateinit var originalGoods: Goods
-    lateinit var changedGoods: Goods
+    lateinit var changedGoods: GoodsToChange
     var newCount: Int = 0
 
     var checkHavePhoto = false
@@ -55,7 +56,7 @@ class ChangeViewModel @Inject constructor(
     }
 
     fun setChangedGoods() {
-        changedGoods = originalGoods.copy(
+        changedGoods.item = originalGoods.copy(
             quantity = newCount,
             summ = (originalGoods.price * newCount * 100.0).roundToInt() / 100.00
         )

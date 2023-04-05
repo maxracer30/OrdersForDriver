@@ -9,16 +9,21 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.APIPhoto
 import ru.maxstelmakh.ordersfordriver.data.orderApi.APIOrders
 import ru.maxstelmakh.ordersfordriver.data.orderApi.BaseRepository
 import ru.maxstelmakh.ordersfordriver.data.orderApi.implusecases.DefaultGetOrder
 import ru.maxstelmakh.ordersfordriver.domain.repositories.OrdersRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
+import javax.inject.Named
+import javax.inject.Singleton
 
+@Singleton
 @Module(includes = [BindOrdersModule::class])
 @InstallIn(ViewModelComponent::class)
 class OrdersModule {
 
+    @Singleton
     @Provides
     fun interceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
@@ -26,6 +31,7 @@ class OrdersModule {
         }
     }
 
+    @Singleton
     @Provides
     fun okHttpClient(interceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
@@ -33,7 +39,9 @@ class OrdersModule {
             .build()
     }
 
+    @Singleton
     @Provides
+    @Named("Orders")
     fun provideAPIService(okHttpClient: OkHttpClient): APIOrders {
         return Retrofit.Builder()
             .baseUrl("http://vseotlichno.com/api/v1/")
@@ -41,6 +49,18 @@ class OrdersModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(APIOrders::class.java)
+    }
+
+    @Singleton
+    @Provides
+    @Named("Pictures")
+    fun provideAPIPhotoService(okHttpClient: OkHttpClient): APIPhoto {
+        return Retrofit.Builder()
+            .baseUrl("https://cloud-api.yandex.net/v1/disk/resources/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(APIPhoto::class.java)
     }
 }
 

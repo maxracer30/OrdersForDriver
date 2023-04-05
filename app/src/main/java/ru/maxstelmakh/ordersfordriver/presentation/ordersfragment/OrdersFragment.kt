@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.FragmentOrdersBinding
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
 import ru.maxstelmakh.ordersfordriver.presentation.adapter.GoodsAdapter
 import ru.maxstelmakh.ordersfordriver.presentation.adapter.GoodsClickListener
 import ru.maxstelmakh.ordersfordriver.presentation.changegoodsfragment.ChangeGoodsFragment
@@ -153,13 +154,16 @@ class OrdersFragment : Fragment(), GoodsClickListener {
 
     // Слушатель нажатий на товар в RecyclerView
     override fun onClick(goods: Goods) {
-        viewModel.changedGoods = goods
+        viewModel.changedGoods = GoodsToChange(
+            item = goods,
+            viewModel.changeGoodsReasons[goods.article] ?: ""
+        )
 
         ChangeGoodsFragment(
             originalGoods = viewModel.getOriginalGoods(),
-            goodsToChange = goods,
+            goodsToChange = viewModel.changedGoods,
             changedGoodsListener = {
-                viewModel.changedGoods = it
+                viewModel.changedGoods.item = it
                 viewModel.saveGoods()
             }
         ).show(parentFragmentManager, "Dialog")
