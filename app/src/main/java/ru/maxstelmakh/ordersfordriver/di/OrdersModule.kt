@@ -18,12 +18,10 @@ import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseC
 import javax.inject.Named
 import javax.inject.Singleton
 
-@Singleton
 @Module(includes = [BindOrdersModule::class])
 @InstallIn(ViewModelComponent::class)
 class OrdersModule {
 
-    @Singleton
     @Provides
     fun interceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
@@ -31,7 +29,6 @@ class OrdersModule {
         }
     }
 
-    @Singleton
     @Provides
     fun okHttpClient(interceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
@@ -39,9 +36,7 @@ class OrdersModule {
             .build()
     }
 
-    @Singleton
     @Provides
-    @Named("Orders")
     fun provideAPIService(okHttpClient: OkHttpClient): APIOrders {
         return Retrofit.Builder()
             .baseUrl("http://vseotlichno.com/api/v1/")
@@ -51,9 +46,7 @@ class OrdersModule {
             .create(APIOrders::class.java)
     }
 
-    @Singleton
     @Provides
-    @Named("Pictures")
     fun provideAPIPhotoService(okHttpClient: OkHttpClient): APIPhoto {
         return Retrofit.Builder()
             .baseUrl("https://cloud-api.yandex.net/v1/disk/resources/")

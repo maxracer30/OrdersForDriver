@@ -1,5 +1,6 @@
 package ru.maxstelmakh.ordersfordriver.presentation.ordersfragment
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +12,8 @@ import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.orderApi.Result
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.APIPhoto
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.DefaultApiPhoto
 import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
 import ru.maxstelmakh.ordersfordriver.domain.repositories.PictureRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
@@ -19,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
     private val getOrderUseCase: GetOrderUseCase,
-    private val repository: PictureRepository
+    private val def: DefaultApiPhoto
 ) : ViewModel() {
 
     private val _order = MutableSharedFlow<List<Order>>()
@@ -84,8 +87,15 @@ class OrdersViewModel @Inject constructor(
 
     fun completeOrder() {
         when (originalOrder.goods == changedOrder.goods) {
-            true -> {}
-            false -> {}
+            true -> {
+                println("Empty equals")
+            }
+            false -> {
+                viewModelScope.launch {
+                    println(changedGoods.item.article.toString())
+                    def.uploadPhoto(changedGoods.item.article.toString())
+                }
+            }
         }
     }
 

@@ -1,19 +1,31 @@
 package ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api
 
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
-import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.model.LinkToUpload
+import retrofit2.http.*
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.model.repsonse.LinkToDownload
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.model.repsonse.LinkToUpload
 
 interface APIPhoto {
 
-    @Multipart
-    @POST("api/1.0/media.upload")
-    suspend fun upload(
-        @Part("Authorization") token: String = "OAuth y0_AgAAAABpwqZqAADLWwAAAADgNtgSwcGKD2VwQSeOYvIPeZWpnSVrFpY",
-        @Part media: MultipartBody.Part
+    @GET("upload")
+    suspend fun connectToServer(
+        @Header("Authorization") token: String = "OAuth y0_AgAAAABpwqZqAADLWwAAAADgNtgSwcGKD2VwQSeOYvIPeZWpnSVrFpY",
+        @Query("path") path: String,
     ): Response<LinkToUpload>
+
+    @Multipart
+    @PUT
+    suspend fun uploadFile(
+        @Url url: String,
+        @Part media: MultipartBody.Part
+    ): Response<ResponseBody>
+
+    @GET("download/")
+    suspend fun getLinkToDownload(
+        @Header("Authorization") token: String = "OAuth y0_AgAAAABpwqZqAADLWwAAAADgNtgSwcGKD2VwQSeOYvIPeZWpnSVrFpY",
+        @Query("path") path: String
+    ): Response<LinkToDownload>
 
 }
