@@ -6,4 +6,6 @@ interface PictureRepository {
     suspend fun savePhoto(name: String, bitmap: Bitmap): Boolean
 
     suspend fun loadPhoto(name: String): Bitmap?
+
+    suspend fun deletePhoto(name: String): Boolean
 }

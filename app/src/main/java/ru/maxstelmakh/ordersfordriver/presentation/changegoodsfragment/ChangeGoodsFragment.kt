@@ -7,6 +7,8 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -16,6 +18,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -40,8 +43,6 @@ class ChangeGoodsFragment(
     companion object {
         private const val TAKE_PHOTO_REQUEST_CODE = 10
         private const val SELECT_IMAGE_IN_ALBUM_REQUEST_CODE = 11
-        private const val CAMERA_PERMISSION_CODE = 100
-        private const val STORAGE_PERMISSION_CODE = 101
     }
 
     private var _binding: ChangeDialogBinding? = null
@@ -103,7 +104,7 @@ class ChangeGoodsFragment(
         }
 
         etReason.doAfterTextChanged {
-            when(etReason.text.isNullOrBlank()) {
+            when (etReason.text.isNullOrBlank()) {
                 true -> {}
                 false -> {
                     viewModel.changedGoods.changeReason = etReason.text.toString()
@@ -121,11 +122,17 @@ class ChangeGoodsFragment(
         }
 
         cameraBtn.setOnClickListener {
-            takePhoto()
+            when (requestAllPermissions()) {
+                true -> takePhoto()
+                else -> return@setOnClickListener
+            }
         }
 
         galleryBtn.setOnClickListener {
-            selectImageInAlbum()
+            when (requestAllPermissions()) {
+                true -> selectImageInAlbum()
+                else -> return@setOnClickListener
+            }
         }
 
         confirmBtn.setOnClickListener {
@@ -184,7 +191,10 @@ class ChangeGoodsFragment(
                 etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
             }
             else -> {
-                etCount.setText(goodsToChange.item.quantity.toString(), TextView.BufferType.EDITABLE)
+                etCount.setText(
+                    goodsToChange.item.quantity.toString(),
+                    TextView.BufferType.EDITABLE
+                )
             }
         }
     }
@@ -197,7 +207,10 @@ class ChangeGoodsFragment(
                 etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
             }
             else -> {
-                etCount.setText(goodsToChange.item.quantity.toString(), TextView.BufferType.EDITABLE)
+                etCount.setText(
+                    goodsToChange.item.quantity.toString(),
+                    TextView.BufferType.EDITABLE
+                )
             }
         }
     }
@@ -243,8 +256,8 @@ class ChangeGoodsFragment(
 
 
     // Выбор фото из галереи
+    @SuppressLint("QueryPermissionsNeeded")
     private fun selectImageInAlbum() {
-
 
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
@@ -254,7 +267,9 @@ class ChangeGoodsFragment(
     }
 
     // Сделать фото
+    @SuppressLint("QueryPermissionsNeeded")
     private fun takePhoto() {
+
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE)
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             startActivityForResult(intent, TAKE_PHOTO_REQUEST_CODE)
@@ -301,6 +316,36 @@ class ChangeGoodsFragment(
             }
             else -> return
         }
+    }
+
+    private fun requestAllPermissions(): Boolean {
+        var info: PackageInfo? = null
+        try {
+            info = requireActivity().packageManager.getPackageInfo(
+                requireContext().packageName,
+                PackageManager.GET_PERMISSIONS
+            )
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        if (info == null) {
+            return true
+        }
+        val permissions = info.requestedPermissions
+        var remained = false
+        for (permission in permissions) {
+            if (checkSelfPermission(
+                    requireContext(),
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                remained = true
+            }
+        }
+        return if (remained) {
+            requestPermissions(permissions, 0)
+            false
+        } else true
     }
 
     // Доступ к строковым ресурсам
