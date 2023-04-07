@@ -1,4 +1,4 @@
-package ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.model.repsonse
+package ru.maxstelmakh.ordersfordriver.data.yandexDiskApi.model.repsonse
 
 import com.google.gson.annotations.SerializedName
 

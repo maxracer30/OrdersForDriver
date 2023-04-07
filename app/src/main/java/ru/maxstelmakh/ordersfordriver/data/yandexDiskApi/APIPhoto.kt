@@ -1,11 +1,11 @@
-package ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api
+package ru.maxstelmakh.ordersfordriver.data.yandexDiskApi
 
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
-import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.model.repsonse.LinkToDownload
-import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.model.repsonse.LinkToUpload
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskApi.model.repsonse.LinkToDownload
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskApi.model.repsonse.LinkToUpload
 
 interface APIPhoto {
 

@@ -9,16 +9,16 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.maxstelmakh.ordersfordriver.data.yandexDiskS3Api.APIPhoto
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskApi.APIPhoto
 import ru.maxstelmakh.ordersfordriver.data.orderApi.APIOrders
 import ru.maxstelmakh.ordersfordriver.data.orderApi.BaseRepository
 import ru.maxstelmakh.ordersfordriver.data.orderApi.implusecases.DefaultGetOrder
+import ru.maxstelmakh.ordersfordriver.data.orderApi.implusecases.DefaultSendOrder
 import ru.maxstelmakh.ordersfordriver.domain.repositories.OrdersRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
-import javax.inject.Named
-import javax.inject.Singleton
+import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.SendOrderUseCase
 
-@Module(includes = [BindOrdersModule::class])
+@Module(includes = [BindOrdersModule::class, PictureModule::class, PictureRemoteModule::class])
 @InstallIn(ViewModelComponent::class)
 class OrdersModule {
 
@@ -67,5 +67,8 @@ interface BindOrdersModule {
 
     @Binds
     fun provideNewOrder(impl: DefaultGetOrder): GetOrderUseCase
+
+    @Binds
+    fun provideSendOrder(impl: DefaultSendOrder): SendOrderUseCase
 
 }

@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
@@ -57,11 +57,12 @@ class OrdersFragment : Fragment(), GoodsClickListener {
 
     // Устанавливает данные заказа во вьюшку
     private fun setOrderDataToView() = with(binding) {
-
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             viewModel.order.collect {
                 when (it.isEmpty()) {
-                    true -> {}
+                    true -> {
+                        constraintLayout.visibility = View.GONE
+                    }
                     else -> {
                         withContext(Dispatchers.Main) {
                             dateOrder.text =
@@ -80,12 +81,13 @@ class OrdersFragment : Fragment(), GoodsClickListener {
 
                             it[0].goods?.let { goods -> goodsAdapter.submitList(goods) }
 
-                            setVisibilityOnView()
+                            if (!goodsRecyclerView.isVisible) {
+                                setVisibilityOnView()
+                            }
                         }
                     }
                 }
             }
-
         }
     }
 
@@ -93,13 +95,29 @@ class OrdersFragment : Fragment(), GoodsClickListener {
     // Изменение видимости некоторых элементов
     private fun setVisibilityOnView() = with(binding) {
 
-        progressBar.visibility = View.GONE
+        showConstraintLayout()
 
-        openButton.visibility = View.VISIBLE
-        completeOrderButton.visibility = View.VISIBLE
+        showOpenButton()
+
+        showCompleteOrderButton()
+
+        hideProgressBar()
 
         completeOrderButton.setOnClickListener {
+
             viewModel.completeOrder()
+
+            showProgressBar()
+
+            if (goodsRecyclerView.isVisible) {
+                hideRecyclerView()
+            }
+            hideConstraintLayout()
+
+            hideOpenButton()
+
+            hideCompleteOrderButton()
+
         }
 
         var isRecyclerVisible = false
@@ -109,6 +127,35 @@ class OrdersFragment : Fragment(), GoodsClickListener {
                 else -> showRecyclerView()
             }
             isRecyclerVisible = !isRecyclerVisible
+        }
+    }
+
+    private fun showProgressBar() {
+        binding.progressBar.apply {
+            visibility = View.VISIBLE
+            translationY = -300f
+            alpha = 0.0f
+            animate()
+                .translationY(0f)
+                .alpha(1.0f)
+                .setListener(null)
+        }
+    }
+
+    private fun hideProgressBar() {
+        binding.progressBar.apply {
+            visibility = View.VISIBLE
+            translationY = 0f
+            alpha = 1.0f
+            animate()
+                .translationY(300f)
+                .alpha(0.0f)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        binding.progressBar.visibility = View.GONE
+                    }
+                })
         }
     }
 
@@ -150,6 +197,86 @@ class OrdersFragment : Fragment(), GoodsClickListener {
                 .setListener(null)
         }
         openButton.text = res(R.string.hide_goods)
+    }
+
+    // Управляет сокрытием заказа
+    private fun hideConstraintLayout() {
+        binding.constraintLayout.apply {
+            visibility = View.GONE
+            translationY = 0f
+            alpha = 1.0f
+            animate()
+                .translationY(-200f)
+                .alpha(0.0f)
+                .setListener(null)
+        }
+    }
+
+    // Управляет отображением заказа
+    private fun showConstraintLayout() {
+        binding.constraintLayout.apply {
+            visibility = View.VISIBLE
+            translationY = -200f
+            alpha = 0.0f
+            animate()
+                .translationY(0f)
+                .alpha(1.0f)
+                .setListener(null)
+        }
+    }
+
+    // Управляет отображением кнопки завершения заказа
+    private fun showCompleteOrderButton() {
+        binding.completeOrderButton.apply {
+            visibility = View.VISIBLE
+            isClickable = true
+            translationY = 200f
+            alpha = 0.0f
+            animate()
+                .translationY(0f)
+                .alpha(1.0f)
+                .setListener(null)
+        }
+    }
+
+    // Управляет сокрытием кнопки завершения заказа
+    private fun hideCompleteOrderButton() {
+        binding.completeOrderButton.apply {
+            isClickable = false
+            translationY = 0f
+            alpha = 1.0f
+            animate()
+                .translationY(200f)
+                .alpha(0.0f)
+                .setListener(null)
+        }
+    }
+
+    // Управляет отображением кнопки показа товаров
+    private fun showOpenButton() {
+        binding.openButton.apply {
+            visibility = View.VISIBLE
+            isClickable = true
+            translationY = 200f
+            alpha = 0.0f
+            animate()
+                .translationY(0f)
+                .alpha(1.0f)
+                .setListener(null)
+        }
+    }
+
+    // Управляет сокрытием кнопки показа товаров
+    private fun hideOpenButton() {
+        binding.openButton.apply {
+            isClickable = false
+            translationY = 0f
+            alpha = 1.0f
+            animate()
+                .translationY(200f)
+                .alpha(0.0f)
+                .setListener(null)
+        }
     }
 
     // Слушатель нажатий на товар в RecyclerView

@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.domain.repositories.PictureRepository
+import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 
@@ -42,5 +43,16 @@ class DefaultPictureRepository @Inject constructor(
     } catch (e: Exception) {
         e.printStackTrace()}
         return@withContext null
+    }
+
+    override suspend fun deletePhoto(name: String): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val fileDir = context.filesDir
+            val file = File(fileDir, "$name.jpg")
+            file.delete()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OrdersForDriver</string>
+    <string name="app_name">Заказы для водителя</string>
     <string name="open_order">Открыть заказ</string>
     <string name="open_goods">Показать товары</string>
     <string name="reason">Причина</string>
