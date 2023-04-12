@@ -267,9 +267,11 @@ class OrdersFragment : Fragment(), GoodsClickListener {
     }
 
     override fun onClick(goods: Goods) {
-        viewModel.changedGoods = GoodsToChange(
-            item = goods,
-            viewModel.changeGoodsReasons[goods.article] ?: ""
+        viewModel.setChangedGoods(
+            GoodsToChange(
+                item = goods,
+                changeReason = viewModel.changeGoodsReasons[goods.article] ?: ""
+            )
         )
 
         ChangeGoodsFragment(
@@ -279,7 +281,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
                 viewModel.changedGoods.item = it
                 viewModel.saveGoods()
             }
-        ).show(parentFragmentManager, "Dialog")
+        ).show(parentFragmentManager, ChangeGoodsFragment::class.java.name)
     }
 
     private fun res(id: Int) = resources.getString(id)
