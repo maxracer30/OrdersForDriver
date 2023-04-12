@@ -143,7 +143,6 @@ class ChangeGoodsFragment(
                         changedGoodsListener(viewModel.changedGoods.item)
                         dismiss()
                     } else {
-                        tvAttention.text = res(R.string.attention)
                         tvAttention.visibility = View.VISIBLE
                         cardPhoto1.cardElevation = 70f
                         cardPhoto1.outlineSpotShadowColor = Color.RED
