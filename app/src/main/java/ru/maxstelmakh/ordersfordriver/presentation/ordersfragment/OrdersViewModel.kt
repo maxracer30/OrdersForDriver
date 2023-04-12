@@ -5,9 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -35,17 +33,20 @@ class OrdersViewModel @Inject constructor(
     private val _order = MutableSharedFlow<List<Order>>()
     val order: SharedFlow<List<Order>> = _order
 
-    private val _result = MutableStateFlow(false)
-    val result: StateFlow<Boolean> = _result
+    private var _originalOrder: Order? = null
+    private val originalOrder: Order get() = _originalOrder!!
 
-    private lateinit var originalOrder: Order
-    private lateinit var changedOrder: Order
+    private var _changedOrder: Order? = null
+    private val changedOrder: Order get() = _changedOrder!!
 
-    lateinit var changedGoods: GoodsToChange
+    private var _changedGoods: GoodsToChange? = null
+    val changedGoods: GoodsToChange get() = _changedGoods!!
 
-    var changeGoodsReasons = HashMap<Long, String>()
+    private var _changeGoodsReasons = HashMap<Long, String>()
+    val changeGoodsReasons get() = _changeGoodsReasons
 
-    private var responseOrder: ResponseOrder? = null
+    private var _responseOrder: ResponseOrder? = null
+    private val responseOrder: ResponseOrder get() = _responseOrder!!
 
     init {
         getNewOrder()
@@ -60,17 +61,15 @@ class OrdersViewModel @Inject constructor(
     private suspend fun getOrderHandler(result: Result<Order>) = when (result) {
         is Result.Success -> withContext(Dispatchers.Main) {
             result.data.let {
-                originalOrder = it
-                changedOrder = it
+                _originalOrder = it
+                _changedOrder = it
 
-                _result.emit(false)
                 _order.emit(listOf(it))
             }
         }
 
         is Result.Failure -> withContext(Dispatchers.Main) {
             _order.emit(emptyList())
-            _result.emit(false)
             getNewOrder()
         }
     }
@@ -91,9 +90,9 @@ class OrdersViewModel @Inject constructor(
                         this[changedGoodsPosition] = changedGoods.item
                     }
 
-                    changeGoodsReasons[changedGoods.item.article] = changedGoods.changeReason
+                    _changeGoodsReasons[changedGoods.item.article] = changedGoods.changeReason
 
-                    changedOrder = originalOrder.copy(goods = changedList)
+                    _changedOrder = originalOrder.copy(goods = changedList)
 
                     _order.emit(listOf(changedOrder))
                 }
@@ -104,7 +103,7 @@ class OrdersViewModel @Inject constructor(
     fun completeOrder() {
         when (originalOrder.goods == changedOrder.goods) {
             true -> {
-                responseOrder = ResponseOrder(
+                _responseOrder = ResponseOrder(
                     orderId = originalOrder.orderId,
                     orderDate = originalOrder.orderDate,
                     orderNum = originalOrder.orderNum,
@@ -128,7 +127,7 @@ class OrdersViewModel @Inject constructor(
                     changedGoods.quantity == originalThisGoods?.quantity
                 }
 
-                changedOrder = changedOrder.copy(
+                _changedOrder = changedOrder.copy(
                     goods = changedGoodsList
                 )
 
@@ -147,19 +146,15 @@ class OrdersViewModel @Inject constructor(
 
 
     private suspend fun sendOrder() {
-        responseOrder?.let {
-            sendOrderHandler(sendOrderUseCase(it))
-        }
+        sendOrderHandler(sendOrderUseCase(responseOrder))
     }
 
     private suspend fun sendOrderHandler(result: Result<ResponseBody>) = when (result) {
         is Result.Success -> withContext(Dispatchers.Main) {
-            _result.emit(true)
             clearResources()
             getNewOrder()
         }
         is Result.Failure -> withContext(Dispatchers.Main) {
-            _result.emit(false)
             sendOrder()
         }
     }
@@ -187,10 +182,14 @@ class OrdersViewModel @Inject constructor(
         viewModelScope.launch {
             _order.emit(emptyList())
 
-            responseOrder?.goods?.forEach {
+            responseOrder.goods?.forEach {
                 println(deletePhotoUseCase(it.article.toString()))
             }
-            responseOrder = null
+            _changeGoodsReasons.clear()
+            _changedOrder = null
+            _originalOrder = null
+            _changedGoods = null
+            _responseOrder = null
 
         }
 
@@ -200,7 +199,7 @@ class OrdersViewModel @Inject constructor(
         val unsentPhoto = changedOrder.goods?.toMutableList()
 
         unsentPhoto?.removeFirst()
-        changedOrder = changedOrder.copy(
+        _changedOrder = changedOrder.copy(
             goods = unsentPhoto
         )
     }
@@ -208,9 +207,8 @@ class OrdersViewModel @Inject constructor(
     private fun preparationOrderResponse(href: String?) {
 
         val listResponseGoods = mutableListOf<ResponseGoods>()
-
-        if (responseOrder != null) {
-            responseOrder?.goods?.let { listResponseGoods.addAll(it) }
+        if (_responseOrder != null) {
+            responseOrder.goods?.let { listResponseGoods.addAll(it) }
         }
 
         changedOrder.goods?.first()?.let {
@@ -226,7 +224,7 @@ class OrdersViewModel @Inject constructor(
                 )
             )
 
-            responseOrder = ResponseOrder(
+            _responseOrder = ResponseOrder(
                 orderId = originalOrder.orderId,
                 orderDate = originalOrder.orderDate,
                 orderNum = originalOrder.orderNum,
@@ -236,6 +234,9 @@ class OrdersViewModel @Inject constructor(
         }
     }
 
+    fun setChangedGoods(goodsToChange: GoodsToChange) {
+        _changedGoods = goodsToChange
+    }
 
     fun getOriginalGoods(): Goods {
         val changedGoodsPosition =
