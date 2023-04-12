@@ -1,7 +1,7 @@
-package ru.maxstelmakh.ordersfordriver.di
+package ru.maxstelmakh.ordersfordriver.core
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class OrdersForDriver : Application()
+class App : Application()

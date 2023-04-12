@@ -24,13 +24,14 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.ChangeDialogBinding
 import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
-import java.io.*
-import java.util.*
+import java.io.IOException
 
 
 @AndroidEntryPoint
@@ -71,19 +72,15 @@ class ChangeGoodsFragment(
         return dialog
     }
 
-    //Устанавливает значения в вьюшку
     private fun setGoodsToView() = with(binding) {
 
-
         val goods = viewModel.changedGoods.item
-
 
         tvName.text = goods.name
         tvPrice.text = buildString { append(goods.price.toString(), res(R.string.perPiece)) }
         tvSumm.text = buildString { append(res(R.string.summary), goods.summ.toString()) }
         etCount.setText(goods.quantity.toString(), TextView.BufferType.EDITABLE)
         etReason.setText(viewModel.changedGoods.changeReason, TextView.BufferType.EDITABLE)
-
 
         visibilityChangingFields()
 
@@ -157,8 +154,6 @@ class ChangeGoodsFragment(
         }
     }
 
-    //Изменяет видимость фотокарточек и поля ввода причины изменений
-
     private fun visibilityChangingFields() = with(binding) {
         when (checkCount()) {
             true -> {
@@ -181,8 +176,6 @@ class ChangeGoodsFragment(
 
     }
 
-
-    // Инкремент количества товара
     private fun increaseInteger() = with(binding) {
 
         when (etCount.text.toString().toIntOrNull()) {
@@ -199,7 +192,6 @@ class ChangeGoodsFragment(
         }
     }
 
-    // Декремент количества товара
     private fun decreaseInteger() = with(binding) {
         when (etCount.text.toString().toIntOrNull()) {
             is Int -> {
@@ -215,7 +207,6 @@ class ChangeGoodsFragment(
         }
     }
 
-    // Изменение активности кнопки декремента
     private fun decreaseBtnActive() = with(binding) {
         decreaseCount.isClickable =
             when (etCount.text.toString().toInt()) {
@@ -224,7 +215,6 @@ class ChangeGoodsFragment(
             }
     }
 
-    //Изменение итоговой суммы
     private fun changeSum() = with(binding) {
         tvSumm.text =
             when (checkCount()) {
@@ -238,7 +228,6 @@ class ChangeGoodsFragment(
             }
     }
 
-    // Проверка вводимого числа на соответствие типу Int
     private fun checkCountIsInt(): Boolean {
         return when (binding.etCount.text.toString().toIntOrNull()) {
             is Int -> true
@@ -246,7 +235,6 @@ class ChangeGoodsFragment(
         }
     }
 
-    //Проверка количества товаров на равность к исходному зачению
     private fun checkCount(): Boolean {
         return when (checkCountIsInt()) {
             true -> originalGoods.quantity == binding.etCount.text.toString().toInt()
@@ -254,8 +242,6 @@ class ChangeGoodsFragment(
         }
     }
 
-
-    // Выбор фото из галереи
     @SuppressLint("QueryPermissionsNeeded")
     private fun selectImageInAlbum() {
 
@@ -266,7 +252,6 @@ class ChangeGoodsFragment(
         }
     }
 
-    // Сделать фото
     @SuppressLint("QueryPermissionsNeeded")
     private fun takePhoto() {
 
@@ -276,8 +261,6 @@ class ChangeGoodsFragment(
         }
     }
 
-
-    // Обрабатывает результат фото
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
@@ -348,10 +331,8 @@ class ChangeGoodsFragment(
         } else true
     }
 
-    // Доступ к строковым ресурсам
     private fun res(id: Int) = resources.getString(id)
 
-    // Зануляем binding
     override fun onDestroy() {
         super.onDestroy()
         _binding = null

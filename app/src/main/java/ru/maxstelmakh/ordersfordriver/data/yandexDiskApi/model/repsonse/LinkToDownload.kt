@@ -6,5 +6,4 @@ data class LinkToDownload(
     @SerializedName("href") val href: String?,
     @SerializedName("method") val method: String?,
     @SerializedName("templated") val templated: Boolean?
-) {
-}
+)

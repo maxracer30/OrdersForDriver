@@ -8,13 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
-import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
 import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
 import ru.maxstelmakh.ordersfordriver.domain.repositories.PictureRepository
-import ru.maxstelmakh.ordersfordriver.domain.usecases.photousecases.LoadPhotoUseCase
-import ru.maxstelmakh.ordersfordriver.domain.usecases.photousecases.SavePhotoUseCase
 import javax.inject.Inject
 import kotlin.math.roundToInt
 

@@ -35,13 +35,14 @@ class DefaultPictureRepository @Inject constructor(
     override suspend fun loadPhoto(name: String): Bitmap? = withContext(Dispatchers.IO) {
         try {
             return@withContext BitmapFactory.decodeStream(
-            Contexts.getApplication(context)
-                .openFileInput("$name.jpg")
-                .readBytes()
-                .inputStream()
-        )
-    } catch (e: Exception) {
-        e.printStackTrace()}
+                Contexts.getApplication(context)
+                    .openFileInput("$name.jpg")
+                    .readBytes()
+                    .inputStream()
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         return@withContext null
     }
 

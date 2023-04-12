@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class DefaultGetOrder @Inject constructor(
     private val repository: OrdersRepository
-): GetOrderUseCase {
+) : GetOrderUseCase {
     override suspend operator fun invoke(): Result<Order> {
         return repository.fetchOrders()
     }

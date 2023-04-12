@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class DefaultUploadToRemote @Inject constructor(
     private val pictureRemoteRepository: PictureRemoteRepository
-): UploadToRemoteUseCase {
+) : UploadToRemoteUseCase {
 
     override suspend fun invoke(photoName: String): Result<LinkToDownload> {
         return pictureRemoteRepository.uploadPhoto(photoName = photoName)

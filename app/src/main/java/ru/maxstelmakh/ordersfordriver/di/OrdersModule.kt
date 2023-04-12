@@ -9,11 +9,12 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.maxstelmakh.ordersfordriver.data.yandexDiskApi.APIPhoto
+import ru.maxstelmakh.ordersfordriver.BuildConfig
 import ru.maxstelmakh.ordersfordriver.data.orderApi.APIOrders
 import ru.maxstelmakh.ordersfordriver.data.orderApi.BaseRepository
 import ru.maxstelmakh.ordersfordriver.data.orderApi.implusecases.DefaultGetOrder
 import ru.maxstelmakh.ordersfordriver.data.orderApi.implusecases.DefaultSendOrder
+import ru.maxstelmakh.ordersfordriver.data.yandexDiskApi.APIPhoto
 import ru.maxstelmakh.ordersfordriver.domain.repositories.OrdersRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.SendOrderUseCase
@@ -39,7 +40,7 @@ class OrdersModule {
     @Provides
     fun provideAPIService(okHttpClient: OkHttpClient): APIOrders {
         return Retrofit.Builder()
-            .baseUrl("http://vseotlichno.com/api/v1/")
+            .baseUrl(BuildConfig.SERVER_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -49,7 +50,7 @@ class OrdersModule {
     @Provides
     fun provideAPIPhotoService(okHttpClient: OkHttpClient): APIPhoto {
         return Retrofit.Builder()
-            .baseUrl("https://cloud-api.yandex.net/v1/disk/resources/")
+            .baseUrl(BuildConfig.PICTURES_STORAGE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

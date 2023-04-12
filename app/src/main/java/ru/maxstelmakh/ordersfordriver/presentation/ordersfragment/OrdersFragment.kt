@@ -37,7 +37,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
 
     private val viewModel by viewModels<OrdersViewModel>()
 
-
     @SuppressLint("NewApi")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,14 +47,12 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         return _binding!!.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setOrderDataToView()
     }
 
-    // Устанавливает данные заказа во вьюшку
     private fun setOrderDataToView() = with(binding) {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             viewModel.order.collect {
@@ -91,8 +88,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-
-    // Изменение видимости некоторых элементов
     private fun setVisibilityOnView() = with(binding) {
 
         showConstraintLayout()
@@ -159,7 +154,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Управляет сокрытием RecyclerView
     private fun hideRecyclerView() = with(binding) {
         openButton.text = res(R.string.open_goods)
         goodsRecyclerView.apply {
@@ -178,7 +172,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Управляет отображением RecyclerView
     private fun showRecyclerView() = with(binding) {
         goodsRecyclerView.adapter = goodsAdapter
         goodsRecyclerView.addItemDecoration(
@@ -199,7 +192,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         openButton.text = res(R.string.hide_goods)
     }
 
-    // Управляет сокрытием заказа
     private fun hideConstraintLayout() {
         binding.constraintLayout.apply {
             visibility = View.GONE
@@ -212,7 +204,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Управляет отображением заказа
     private fun showConstraintLayout() {
         binding.constraintLayout.apply {
             visibility = View.VISIBLE
@@ -225,7 +216,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Управляет отображением кнопки завершения заказа
     private fun showCompleteOrderButton() {
         binding.completeOrderButton.apply {
             visibility = View.VISIBLE
@@ -239,7 +229,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Управляет сокрытием кнопки завершения заказа
     private fun hideCompleteOrderButton() {
         binding.completeOrderButton.apply {
             isClickable = false
@@ -252,7 +241,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Управляет отображением кнопки показа товаров
     private fun showOpenButton() {
         binding.openButton.apply {
             visibility = View.VISIBLE
@@ -266,7 +254,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Управляет сокрытием кнопки показа товаров
     private fun hideOpenButton() {
         binding.openButton.apply {
             isClickable = false
@@ -279,7 +266,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    // Слушатель нажатий на товар в RecyclerView
     override fun onClick(goods: Goods) {
         viewModel.changedGoods = GoodsToChange(
             item = goods,
@@ -296,13 +282,10 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         ).show(parentFragmentManager, "Dialog")
     }
 
-    // Для доступа к строковым ресурсам
     private fun res(id: Int) = resources.getString(id)
 
-    // Зануляем binding
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
     }
-
 }

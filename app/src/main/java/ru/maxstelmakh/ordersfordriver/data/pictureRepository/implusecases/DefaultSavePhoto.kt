@@ -8,7 +8,7 @@ import javax.inject.Inject
 class DefaultSavePhoto @Inject constructor(
     private val pictureRepository: PictureRepository
 ) : SavePhotoUseCase {
-    override suspend operator fun invoke(name: String, bitmap: Bitmap) : Boolean {
+    override suspend operator fun invoke(name: String, bitmap: Bitmap): Boolean {
         return pictureRepository.savePhoto(name = name, bitmap = bitmap)
     }
 }

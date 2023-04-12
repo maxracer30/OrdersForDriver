@@ -111,18 +111,10 @@ class OrdersViewModel @Inject constructor(
                     phone = originalOrder.phone,
                     goods = emptyList()
                 )
-                println(responseOrder)
 
                 viewModelScope.launch(Dispatchers.IO) {
-                    println("---------------------------Отправка пустого на сервер-----------------------------------")
                     sendOrder()
                 }
-
-
-                println(responseOrder)
-
-
-
             }
             false -> {
 
