@@ -7,7 +7,7 @@ import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseC
 import javax.inject.Inject
 
 class DefaultGetOrder @Inject constructor(
-    private val repository: OrdersRepository
+    private val repository: OrdersRepository,
 ) : GetOrderUseCase {
     override suspend operator fun invoke(): Result<Order> {
         return repository.fetchOrders()

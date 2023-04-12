@@ -6,7 +6,7 @@ import ru.maxstelmakh.ordersfordriver.domain.usecases.photousecases.LoadPhotoUse
 import javax.inject.Inject
 
 class DefaultLoadPhoto @Inject constructor(
-    private val repository: PictureRepository
+    private val repository: PictureRepository,
 ) : LoadPhotoUseCase {
     override suspend operator fun invoke(name: String): Bitmap? {
         return repository.loadPhoto(name = name)

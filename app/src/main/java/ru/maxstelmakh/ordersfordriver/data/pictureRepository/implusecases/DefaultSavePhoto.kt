@@ -6,7 +6,7 @@ import ru.maxstelmakh.ordersfordriver.domain.usecases.photousecases.SavePhotoUse
 import javax.inject.Inject
 
 class DefaultSavePhoto @Inject constructor(
-    private val pictureRepository: PictureRepository
+    private val pictureRepository: PictureRepository,
 ) : SavePhotoUseCase {
     override suspend operator fun invoke(name: String, bitmap: Bitmap): Boolean {
         return pictureRepository.savePhoto(name = name, bitmap = bitmap)

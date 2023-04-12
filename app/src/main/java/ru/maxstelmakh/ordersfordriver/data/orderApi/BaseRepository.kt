@@ -1,5 +1,7 @@
 package ru.maxstelmakh.ordersfordriver.data.orderApi
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Order
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.ResponseOrder
@@ -7,32 +9,47 @@ import ru.maxstelmakh.ordersfordriver.domain.repositories.OrdersRepository
 import javax.inject.Inject
 
 class BaseRepository @Inject constructor(
-    private val apiOrders: APIOrders
+    private val apiOrders: APIOrders,
 ) : OrdersRepository {
-    override suspend fun fetchOrders(): Result<Order> {
-        return try {
-            val response = apiOrders.order().execute()
+    companion object {
+        private const val FETCH_FAILURE_CODE = 601
+        private const val SEND_FAILURE_CODE = 602
+    }
 
-            if (response.isSuccessful) {
-                return Result.Success(data = response.body()!!)
-            } else Result.Failure(statusCode = response.code())
-        } catch (e: Exception) {
-            Result.Failure(statusCode = 601, message = e.message)
+    override suspend fun fetchOrders(): Result<Order> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiOrders.order()
+
+                if (response.isSuccessful) {
+                    return@withContext Result.Success(data = response.body()!!)
+                } else Result.Failure(statusCode = response.code())
+            } catch (e: Exception) {
+                Result.Failure(
+                    statusCode = FETCH_FAILURE_CODE,
+                    message = "Fetch order failure, message: ${e.message}"
+                )
+            }
         }
     }
 
     override suspend fun sendOrder(order: ResponseOrder): Result<ResponseBody> {
-        return try {
+        return withContext(Dispatchers.IO) {
+            try {
 
-            val response = apiOrders.orderComplete(order = order).execute()
+                val response = apiOrders.orderComplete(order = order)
 
-            if (response.isSuccessful) {
-                Result.Success(data = response.body()!!)
-            } else {
-                Result.Failure(statusCode = response.code())
+                if (response.isSuccessful) {
+                    Result.Success(data = response.body()!!)
+                } else {
+                    Result.Failure(statusCode = response.code())
+                }
+            } catch (e: Exception) {
+                Result.Failure(
+                    statusCode = SEND_FAILURE_CODE,
+                    message = "Send order failure, message: ${e.message}"
+                )
             }
-        } catch (e: Exception) {
-            Result.Failure(statusCode = 602, message = e.message)
         }
     }
 }

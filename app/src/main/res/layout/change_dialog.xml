@@ -157,44 +157,6 @@
                     android:src="@drawable/baseline_camera_alt_24" />
             </androidx.cardview.widget.CardView>
 
-
-<!--            <androidx.cardview.widget.CardView-->
-<!--                android:id="@+id/open_gallery"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="14dp"-->
-<!--                app:layout_constraintEnd_toStartOf="@id/open_camera"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/tvAttention">-->
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/photo2"-->
-<!--                    android:layout_width="30dp"-->
-<!--                    android:layout_height="30dp"-->
-<!--                    android:layout_margin="10dp"-->
-<!--                    android:contentDescription="@string/photo"-->
-<!--                    android:src="@drawable/baseline_camera_alt_24" />-->
-<!--            </androidx.cardview.widget.CardView>-->
-
-
-<!--            <androidx.cardview.widget.CardView-->
-<!--                android:id="@+id/open_camera"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="14dp"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/tvAttention">-->
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/photo3"-->
-<!--                    android:layout_width="30dp"-->
-<!--                    android:layout_height="30dp"-->
-<!--                    android:layout_margin="10dp"-->
-<!--                    android:contentDescription="@string/photo"-->
-<!--                    android:src="@drawable/baseline_camera_alt_24" />-->
-
-<!--            </androidx.cardview.widget.CardView>-->
-
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/gallery_btn"
                 android:layout_width="wrap_content"

@@ -19,7 +19,7 @@ interface APIPhoto {
     @PUT
     suspend fun uploadFile(
         @Url url: String,
-        @Part media: MultipartBody.Part
+        @Part media: MultipartBody.Part,
     ): Response<ResponseBody>
 
     @GET("download/")
@@ -27,5 +27,4 @@ interface APIPhoto {
         @Header("Authorization") token: String = "OAuth y0_AgAAAABpwqZqAADLWwAAAADgNtgSwcGKD2VwQSeOYvIPeZWpnSVrFpY",
         @Query("path") path: String
     ): Response<LinkToDownload>
-
 }

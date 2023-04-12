@@ -9,5 +9,5 @@ data class ResponseGoods(
     @SerializedName("price") val price: Double,
     @SerializedName("summ") val summ: Double,
     @SerializedName("reason") val reason: String,
-    @SerializedName("photoLink") val photoLink: String
+    @SerializedName("photoLink") val photoLink: String,
 )

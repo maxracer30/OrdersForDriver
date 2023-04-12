@@ -5,6 +5,5 @@ import ru.maxstelmakh.ordersfordriver.data.orderApi.Result
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.ResponseOrder
 
 interface SendOrderUseCase {
-
     suspend operator fun invoke(order: ResponseOrder): Result<ResponseBody>
 }

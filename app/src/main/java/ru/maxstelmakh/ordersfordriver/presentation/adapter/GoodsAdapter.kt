@@ -8,7 +8,7 @@ import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.GoodsItemBinding
 
 class GoodsAdapter(
-    private val goodsClickListener: GoodsClickListener
+    private val goodsClickListener: GoodsClickListener,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var goods = emptyList<Goods>()

@@ -8,7 +8,7 @@ import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.SendOrderUse
 import javax.inject.Inject
 
 class DefaultSendOrder @Inject constructor(
-    private val repository: OrdersRepository
+    private val repository: OrdersRepository,
 ) : SendOrderUseCase {
     override suspend fun invoke(order: ResponseOrder): Result<ResponseBody> {
         return repository.sendOrder(order = order)

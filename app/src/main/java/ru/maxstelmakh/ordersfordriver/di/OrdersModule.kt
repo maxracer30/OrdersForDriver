@@ -19,7 +19,13 @@ import ru.maxstelmakh.ordersfordriver.domain.repositories.OrdersRepository
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.GetOrderUseCase
 import ru.maxstelmakh.ordersfordriver.domain.usecases.orderusecases.SendOrderUseCase
 
-@Module(includes = [BindOrdersModule::class, PictureModule::class, PictureRemoteModule::class])
+@Module(
+    includes = [
+        BindOrdersModule::class,
+        PictureModule::class,
+        PictureRemoteModule::class,
+    ]
+)
 @InstallIn(ViewModelComponent::class)
 class OrdersModule {
 
@@ -65,11 +71,9 @@ interface BindOrdersModule {
     @Binds
     fun bindOrdersRepository(repository: BaseRepository): OrdersRepository
 
+    @Binds
+    fun provideNewOrder(getOrder: DefaultGetOrder): GetOrderUseCase
 
     @Binds
-    fun provideNewOrder(impl: DefaultGetOrder): GetOrderUseCase
-
-    @Binds
-    fun provideSendOrder(impl: DefaultSendOrder): SendOrderUseCase
-
+    fun provideSendOrder(sendOrder: DefaultSendOrder): SendOrderUseCase
 }

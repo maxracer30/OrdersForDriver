@@ -7,11 +7,10 @@ import ru.maxstelmakh.ordersfordriver.domain.usecases.remotephotousecases.Upload
 import javax.inject.Inject
 
 class DefaultUploadToRemote @Inject constructor(
-    private val pictureRemoteRepository: PictureRemoteRepository
+    private val pictureRemoteRepository: PictureRemoteRepository,
 ) : UploadToRemoteUseCase {
 
     override suspend fun invoke(photoName: String): Result<LinkToDownload> {
         return pictureRemoteRepository.uploadPhoto(photoName = photoName)
     }
-
 }

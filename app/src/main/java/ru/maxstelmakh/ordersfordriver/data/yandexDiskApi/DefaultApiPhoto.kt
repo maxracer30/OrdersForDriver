@@ -20,7 +20,7 @@ import javax.inject.Inject
 class DefaultApiPhoto @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiPhoto: APIPhoto,
-    private val pictureRepository: PictureRepository
+    private val pictureRepository: PictureRepository,
 ) : PictureRemoteRepository {
 
     override suspend fun uploadPhoto(photoName: String): Result<LinkToDownload> =

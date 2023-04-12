@@ -5,11 +5,10 @@ import ru.maxstelmakh.ordersfordriver.domain.usecases.photousecases.DeletePhotoU
 import javax.inject.Inject
 
 class DefaultDeletePhoto @Inject constructor(
-    private val repository: PictureRepository
+    private val repository: PictureRepository,
 ) : DeletePhotoUseCase {
 
     override suspend operator fun invoke(name: String): Boolean {
         return repository.deletePhoto(name = name)
     }
-
 }
