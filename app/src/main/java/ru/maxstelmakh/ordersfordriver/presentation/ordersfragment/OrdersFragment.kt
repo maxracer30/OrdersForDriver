@@ -57,9 +57,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             viewModel.order.collect {
                 when (it.isEmpty()) {
-                    true -> {
-                        constraintLayout.visibility = View.GONE
-                    }
+                    true -> {  }
                     else -> {
                         withContext(Dispatchers.Main) {
                             dateOrder.text =
@@ -90,7 +88,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
 
     private fun setVisibilityOnView() = with(binding) {
 
-        showConstraintLayout()
+        showOrderLayout()
 
         showOpenButton()
 
@@ -107,7 +105,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
             if (goodsRecyclerView.isVisible) {
                 hideRecyclerView()
             }
-            hideConstraintLayout()
+            hideOrderLayout()
 
             hideOpenButton()
 
@@ -192,20 +190,25 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         openButton.text = res(R.string.hide_goods)
     }
 
-    private fun hideConstraintLayout() {
-        binding.constraintLayout.apply {
-            visibility = View.GONE
+    private fun hideOrderLayout() {
+        binding.orderLayout.apply {
+            visibility = View.VISIBLE
             translationY = 0f
             alpha = 1.0f
             animate()
                 .translationY(-200f)
                 .alpha(0.0f)
-                .setListener(null)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        binding.orderLayout.visibility = View.GONE
+                    }
+                })
         }
     }
 
-    private fun showConstraintLayout() {
-        binding.constraintLayout.apply {
+    private fun showOrderLayout() {
+        binding.orderLayout.apply {
             visibility = View.VISIBLE
             translationY = -200f
             alpha = 0.0f
