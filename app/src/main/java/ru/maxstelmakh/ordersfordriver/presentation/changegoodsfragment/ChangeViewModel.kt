@@ -20,7 +20,9 @@ class ChangeViewModel @Inject constructor(
 ) : ViewModel() {
 
     lateinit var originalGoods: Goods
+
     lateinit var changedGoods: GoodsToChange
+
     var newCount: Int = 0
 
     var checkHavePhoto = false
@@ -56,5 +58,10 @@ class ChangeViewModel @Inject constructor(
             quantity = newCount,
             summ = (originalGoods.price * newCount * 100.0).roundToInt() / 100.00
         )
+    }
+
+    fun setData(original: Goods, changed: GoodsToChange) {
+        originalGoods = original
+        changedGoods = changed
     }
 }

@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "UNCHECKED_CAST")
 @file:SuppressLint("NewApi")
 
 package ru.maxstelmakh.ordersfordriver.presentation.changegoodsfragment
@@ -18,6 +18,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
@@ -30,34 +31,43 @@ import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.ChangeDialogBinding
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsModel
 import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
+import ru.maxstelmakh.ordersfordriver.presentation.adapter.ClickListener
 import java.io.IOException
+
+private const val ARG_ORIGINAL_GOODS = "originalGoods"
+private const val ARG_CHANGED_GOODS = "changedGoods"
 
 
 @AndroidEntryPoint
-class ChangeGoodsFragment(
-    private val originalGoods: Goods,
-    private val goodsToChange: GoodsToChange,
-    private val changedGoodsListener: (Goods) -> Unit
-) : DialogFragment() {
-
-    companion object {
-        private const val TAKE_PHOTO_REQUEST_CODE = 10
-        private const val SELECT_IMAGE_IN_ALBUM_REQUEST_CODE = 11
-    }
+class ChangeGoodsFragment : DialogFragment() {
 
     private var _binding: ChangeDialogBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel by viewModels<ChangeViewModel>()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.let {
+            try {
+                viewModel.setData(
+                    it.getParcelable(ARG_ORIGINAL_GOODS)!!,
+                    it.getParcelable(ARG_CHANGED_GOODS)!!
+                )
+            } catch (e: Exception) {
+                Toast.makeText(context, res(R.string.load_goods_error), Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
+        }
+
+    }
 
     @SuppressLint("UseGetLayoutInflater")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         _binding = ChangeDialogBinding.inflate(LayoutInflater.from(context))
-
-        viewModel.originalGoods = originalGoods
-        viewModel.changedGoods = goodsToChange
 
         val builder = AlertDialog.Builder(requireActivity())
 
@@ -135,12 +145,14 @@ class ChangeGoodsFragment(
         confirmBtn.setOnClickListener {
             when (checkCount()) {
                 true -> {
-                    changedGoodsListener(viewModel.originalGoods)
+                    (parentFragmentManager.fragments[0] as? ClickListener<GoodsModel>)
+                        ?.onClick(viewModel.changedGoods)
                     dismiss()
                 }
                 false -> {
                     if (etReason.text.toString().isNotBlank() && viewModel.checkHavePhoto) {
-                        changedGoodsListener(viewModel.changedGoods.item)
+                        (parentFragmentManager.fragments[0] as? ClickListener<GoodsModel>)
+                            ?.onClick(viewModel.changedGoods)
                         dismiss()
                     } else {
                         tvAttention.visibility = View.VISIBLE
@@ -169,7 +181,7 @@ class ChangeGoodsFragment(
                 galleryBtn.visibility = View.VISIBLE
                 tilReason.visibility = View.VISIBLE
                 cardPhoto1.outlineSpotShadowColor = Color.GRAY
-                viewModel.loadPhoto(goodsToChange.item.article.toString())
+                viewModel.loadPhoto(viewModel.originalGoods.article.toString())
             }
         }
 
@@ -184,7 +196,7 @@ class ChangeGoodsFragment(
             }
             else -> {
                 etCount.setText(
-                    goodsToChange.item.quantity.toString(),
+                    viewModel.changedGoods.item.quantity.toString(),
                     TextView.BufferType.EDITABLE
                 )
             }
@@ -199,7 +211,7 @@ class ChangeGoodsFragment(
             }
             else -> {
                 etCount.setText(
-                    goodsToChange.item.quantity.toString(),
+                    viewModel.changedGoods.item.quantity.toString(),
                     TextView.BufferType.EDITABLE
                 )
             }
@@ -217,7 +229,12 @@ class ChangeGoodsFragment(
     private fun changeSum() = with(binding) {
         tvSumm.text =
             when (checkCount()) {
-                true -> buildString { append(res(R.string.summary), originalGoods.summ.toString()) }
+                true -> buildString {
+                    append(
+                        res(R.string.summary),
+                        viewModel.originalGoods.summ.toString()
+                    )
+                }
                 false -> buildString {
                     append(
                         res(R.string.estim_amount),
@@ -236,7 +253,7 @@ class ChangeGoodsFragment(
 
     private fun checkCount(): Boolean {
         return when (checkCountIsInt()) {
-            true -> originalGoods.quantity == binding.etCount.text.toString().toInt()
+            true -> viewModel.originalGoods.quantity == binding.etCount.text.toString().toInt()
             else -> false
         }
     }
@@ -276,7 +293,7 @@ class ChangeGoodsFragment(
                         )
 
                         viewModel.savePhoto(
-                            name = originalGoods.article.toString(),
+                            name = viewModel.originalGoods.article.toString(),
                             bitmap = bitmap
                         )
                     } catch (e: IOException) {
@@ -291,7 +308,7 @@ class ChangeGoodsFragment(
                 data?.let {
                     val thumbnail = it.extras?.get("data") as Bitmap
                     viewModel.savePhoto(
-                        name = originalGoods.article.toString(),
+                        name = viewModel.originalGoods.article.toString(),
                         bitmap = thumbnail
                     )
                 }
@@ -325,7 +342,7 @@ class ChangeGoodsFragment(
             }
         }
         return if (remained) {
-            requestPermissions(permissions, 0)
+            requestPermissions(permissions, PERMISSION_REQUEST_CODE)
             false
         } else true
     }
@@ -335,5 +352,25 @@ class ChangeGoodsFragment(
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    companion object {
+        private const val TAKE_PHOTO_REQUEST_CODE = 10
+        private const val SELECT_IMAGE_IN_ALBUM_REQUEST_CODE = 11
+        private const val PERMISSION_REQUEST_CODE = 12
+
+
+        @JvmStatic
+        fun newInstance(
+            originalGoods: Goods,
+            changedGoods: GoodsToChange,
+
+            ) =
+            ChangeGoodsFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ARG_ORIGINAL_GOODS, originalGoods)
+                    putParcelable(ARG_CHANGED_GOODS, changedGoods)
+                }
+            }
     }
 }
