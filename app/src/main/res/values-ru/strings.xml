@@ -25,4 +25,5 @@
     <string name="attention">Опишите причину и прикрепите фото или верните изначальное количество товара</string>
     <string name="open_gallery">Галерея</string>
     <string name="open_camera">Камера</string>
+    <string name="load_goods_error">Во время загрузки товара произошла ошибка</string>
 </resources>

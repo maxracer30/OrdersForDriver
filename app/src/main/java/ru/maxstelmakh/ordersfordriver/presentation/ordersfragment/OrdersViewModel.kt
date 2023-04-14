@@ -78,7 +78,7 @@ class OrdersViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val changedGoodsPosition =
                 changedOrder.goods?.let { list ->
-                    list.indexOfFirst { it.article == changedGoods.item.article }
+                    list.indexOfFirst { it.article == changedGoods.item?.article }
                 }!!
 
             when (changedGoods.item) {
@@ -87,10 +87,10 @@ class OrdersViewModel @Inject constructor(
                 }
                 else -> {
                     val changedList: List<Goods> = changedOrder.goods?.toMutableList()!!.apply {
-                        this[changedGoodsPosition] = changedGoods.item
+                        this[changedGoodsPosition] = changedGoods.item!!
                     }
 
-                    _changeGoodsReasons[changedGoods.item.article] = changedGoods.changeReason
+                    _changeGoodsReasons[changedGoods.item!!.article] = changedGoods.changeReason!!
 
                     _changedOrder = originalOrder.copy(goods = changedList)
 
@@ -241,7 +241,7 @@ class OrdersViewModel @Inject constructor(
     fun getOriginalGoods(): Goods {
         val changedGoodsPosition =
             changedOrder.goods?.let { list ->
-                list.indexOfFirst { it.article == changedGoods.item.article }
+                list.indexOfFirst { it.article == changedGoods.item?.article }
             }!!
 
         return originalOrder.goods!![changedGoodsPosition]

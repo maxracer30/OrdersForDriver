@@ -25,4 +25,5 @@
     <string name="attention">Describe the reason and attach photo or return the original quantity</string>
     <string name="open_gallery">Open gallery</string>
     <string name="open_camera">Open camera</string>
+    <string name="load_goods_error">An error occurred while loading the product</string>
 </resources>

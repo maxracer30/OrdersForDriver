@@ -54,14 +54,13 @@ class ChangeGoodsFragment : DialogFragment() {
             try {
                 viewModel.setData(
                     it.getParcelable(ARG_ORIGINAL_GOODS)!!,
-                    it.getParcelable(ARG_CHANGED_GOODS)!!
+                    it.getParcelable(ARG_CHANGED_GOODS)!!,
                 )
             } catch (e: Exception) {
                 Toast.makeText(context, res(R.string.load_goods_error), Toast.LENGTH_SHORT).show()
                 e.printStackTrace()
             }
         }
-
     }
 
     @SuppressLint("UseGetLayoutInflater")
@@ -70,12 +69,13 @@ class ChangeGoodsFragment : DialogFragment() {
         _binding = ChangeDialogBinding.inflate(LayoutInflater.from(context))
 
         val builder = AlertDialog.Builder(requireActivity())
-
         builder.setView(binding.root)
 
         setGoodsToView()
+        setChangesListeners()
 
         val dialog = builder.create()
+
         dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.window!!.setGravity(Gravity.TOP)
 
@@ -83,48 +83,49 @@ class ChangeGoodsFragment : DialogFragment() {
     }
 
     private fun setGoodsToView() = with(binding) {
-
-        val goods = viewModel.changedGoods.item
-
-        tvName.text = goods.name
-        tvPrice.text = buildString { append(goods.price.toString(), res(R.string.perPiece)) }
-        tvSumm.text = buildString { append(res(R.string.summary), goods.summ.toString()) }
-        etCount.setText(goods.quantity.toString(), TextView.BufferType.EDITABLE)
-        etReason.setText(viewModel.changedGoods.changeReason, TextView.BufferType.EDITABLE)
-
-        visibilityChangingFields()
-
-        increaseCount.setOnClickListener { increaseInteger() }
-        decreaseCount.setOnClickListener { decreaseInteger() }
-
-        etCount.doAfterTextChanged {
-            when (checkCountIsInt()) {
-                true -> {
-                    viewModel.newCount = etCount.text.toString().toInt()
-                    viewModel.setChangedGoods()
-                    visibilityChangingFields()
-                    changeSum()
-                    decreaseBtnActive()
-                }
-                false -> {}
-            }
-        }
-
-        etReason.doAfterTextChanged {
-            when (etReason.text.isNullOrBlank()) {
-                true -> {}
-                false -> {
-                    viewModel.changedGoods.changeReason = etReason.text.toString()
-                }
-            }
-        }
-
-
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             viewModel.photo.collect { bitmap ->
                 withContext(Dispatchers.Main) {
                     binding.photo1.setImageBitmap(bitmap)
                 }
+            }
+        }
+
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            viewModel.changedGoods.collect {
+                withContext(Dispatchers.Main) {
+                    visibilityChangingFields(viewModel.checkCount())
+                    tvName.text = it.item?.name
+                    tvPrice.text =
+                        buildString { append(it.item?.price.toString(), res(R.string.perPiece)) }
+                    tvSumm.text =
+                        buildString { append(res(R.string.summary), it.item?.summ.toString()) }
+                    etCount.setText(it.item?.quantity.toString(), TextView.BufferType.EDITABLE)
+                    etReason.setText(it.changeReason, TextView.BufferType.EDITABLE)
+                }
+            }
+        }
+    }
+
+    private fun setChangesListeners() = with(binding) {
+
+        increaseCount.setOnClickListener {
+            viewModel.setCount(etCount.text.toString().toInt().plus(1))
+        }
+
+        decreaseCount.setOnClickListener {
+            viewModel.setCount(etCount.text.toString().toInt().minus(1))
+        }
+
+        etCount.doAfterTextChanged { newCount ->
+            when (newCount.isNullOrBlank()) {
+                false -> {
+                    increaseCount.isClickable = newCount.toString().toInt() != 0
+                    decreaseCount.isClickable = newCount.toString().toInt() != 0
+                    viewModel.setCount(newCount.toString().toInt())
+                    etCount.setSelection(newCount.length)
+                }
+                else -> {}
             }
         }
 
@@ -143,17 +144,12 @@ class ChangeGoodsFragment : DialogFragment() {
         }
 
         confirmBtn.setOnClickListener {
-            when (checkCount()) {
-                true -> {
-                    (parentFragmentManager.fragments[0] as? ClickListener<GoodsModel>)
-                        ?.onClick(viewModel.changedGoods)
-                    dismiss()
-                }
+            when (viewModel.checkCount()) {
+                true -> saveAndCloseFragment()
                 false -> {
-                    if (etReason.text.toString().isNotBlank() && viewModel.checkHavePhoto) {
-                        (parentFragmentManager.fragments[0] as? ClickListener<GoodsModel>)
-                            ?.onClick(viewModel.changedGoods)
-                        dismiss()
+                    if (etReason.text.toString().isNotBlank() && viewModel.checkPhoto.value) {
+                        viewModel.setReason(etReason.text.toString())
+                        saveAndCloseFragment()
                     } else {
                         tvAttention.visibility = View.VISIBLE
                         cardPhoto1.cardElevation = 70f
@@ -165,15 +161,14 @@ class ChangeGoodsFragment : DialogFragment() {
         }
     }
 
-    private fun visibilityChangingFields() = with(binding) {
-        when (checkCount()) {
+    private fun visibilityChangingFields(checkCount: Boolean) = with(binding) {
+        when (checkCount) {
             true -> {
                 cardPhoto1.visibility = View.GONE
                 cameraBtn.visibility = View.GONE
                 galleryBtn.visibility = View.GONE
                 tilReason.visibility = View.GONE
                 tvAttention.visibility = View.GONE
-                cardPhoto1.cardElevation = 0f
             }
             false -> {
                 cardPhoto1.visibility = View.VISIBLE
@@ -187,80 +182,8 @@ class ChangeGoodsFragment : DialogFragment() {
 
     }
 
-    private fun increaseInteger() = with(binding) {
-
-        when (etCount.text.toString().toIntOrNull()) {
-            is Int -> {
-                val newCount = etCount.text.toString().toInt() + 1
-                etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
-            }
-            else -> {
-                etCount.setText(
-                    viewModel.changedGoods.item.quantity.toString(),
-                    TextView.BufferType.EDITABLE
-                )
-            }
-        }
-    }
-
-    private fun decreaseInteger() = with(binding) {
-        when (etCount.text.toString().toIntOrNull()) {
-            is Int -> {
-                val newCount = etCount.text.toString().toInt() - 1
-                etCount.setText(newCount.toString(), TextView.BufferType.EDITABLE)
-            }
-            else -> {
-                etCount.setText(
-                    viewModel.changedGoods.item.quantity.toString(),
-                    TextView.BufferType.EDITABLE
-                )
-            }
-        }
-    }
-
-    private fun decreaseBtnActive() = with(binding) {
-        decreaseCount.isClickable =
-            when (etCount.text.toString().toInt()) {
-                0 -> false
-                else -> true
-            }
-    }
-
-    private fun changeSum() = with(binding) {
-        tvSumm.text =
-            when (checkCount()) {
-                true -> buildString {
-                    append(
-                        res(R.string.summary),
-                        viewModel.originalGoods.summ.toString()
-                    )
-                }
-                false -> buildString {
-                    append(
-                        res(R.string.estim_amount),
-                        viewModel.changedGoods.item.summ.toString()
-                    )
-                }
-            }
-    }
-
-    private fun checkCountIsInt(): Boolean {
-        return when (binding.etCount.text.toString().toIntOrNull()) {
-            is Int -> true
-            else -> false
-        }
-    }
-
-    private fun checkCount(): Boolean {
-        return when (checkCountIsInt()) {
-            true -> viewModel.originalGoods.quantity == binding.etCount.text.toString().toInt()
-            else -> false
-        }
-    }
-
     @SuppressLint("QueryPermissionsNeeded")
     private fun selectImageInAlbum() {
-
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
@@ -270,7 +193,6 @@ class ChangeGoodsFragment : DialogFragment() {
 
     @SuppressLint("QueryPermissionsNeeded")
     private fun takePhoto() {
-
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE)
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
             startActivityForResult(intent, TAKE_PHOTO_REQUEST_CODE)
@@ -279,7 +201,6 @@ class ChangeGoodsFragment : DialogFragment() {
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
@@ -296,12 +217,12 @@ class ChangeGoodsFragment : DialogFragment() {
                             name = viewModel.originalGoods.article.toString(),
                             bitmap = bitmap
                         )
+                        binding.photo1.setImageBitmap(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                 }
             }
-
 
             TAKE_PHOTO_REQUEST_CODE -> {
 
@@ -311,6 +232,7 @@ class ChangeGoodsFragment : DialogFragment() {
                         name = viewModel.originalGoods.article.toString(),
                         bitmap = thumbnail
                     )
+                    binding.photo1.setImageBitmap(thumbnail)
                 }
             }
             else -> return
@@ -327,16 +249,12 @@ class ChangeGoodsFragment : DialogFragment() {
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
-        if (info == null) {
-            return true
-        }
+        if (info == null) return true
         val permissions = info.requestedPermissions
         var remained = false
         for (permission in permissions) {
-            if (checkSelfPermission(
-                    requireContext(),
-                    permission
-                ) != PackageManager.PERMISSION_GRANTED
+            if (checkSelfPermission(requireContext(), permission)
+                != PackageManager.PERMISSION_GRANTED
             ) {
                 remained = true
             }
@@ -348,6 +266,12 @@ class ChangeGoodsFragment : DialogFragment() {
     }
 
     private fun res(id: Int) = resources.getString(id)
+
+    private fun saveAndCloseFragment() {
+        (parentFragmentManager.fragments[0] as? ClickListener<GoodsModel>)
+            ?.onClick(viewModel.changedGoods.value)
+        dismiss()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
