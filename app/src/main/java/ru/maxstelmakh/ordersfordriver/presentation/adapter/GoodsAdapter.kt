@@ -6,9 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.GoodsItemBinding
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsModel
 
 class GoodsAdapter(
-    private val goodsClickListener: GoodsClickListener,
+    private val goodsClickListener: ClickListener<GoodsModel>,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var goods = emptyList<Goods>()

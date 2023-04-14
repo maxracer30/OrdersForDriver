@@ -20,15 +20,16 @@ import kotlinx.coroutines.withContext
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.FragmentOrdersBinding
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsModel
 import ru.maxstelmakh.ordersfordriver.domain.model.GoodsToChange
+import ru.maxstelmakh.ordersfordriver.presentation.adapter.ClickListener
 import ru.maxstelmakh.ordersfordriver.presentation.adapter.GoodsAdapter
-import ru.maxstelmakh.ordersfordriver.presentation.adapter.GoodsClickListener
 import ru.maxstelmakh.ordersfordriver.presentation.changegoodsfragment.ChangeGoodsFragment
 
 
 @Suppress("DEPRECATION")
 @AndroidEntryPoint
-class OrdersFragment : Fragment(), GoodsClickListener {
+class OrdersFragment : Fragment(), ClickListener<GoodsModel> {
 
     private var _binding: FragmentOrdersBinding? = null
     private val binding get() = _binding!!
@@ -42,7 +43,6 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentOrdersBinding.inflate(layoutInflater, container, false)
         return _binding!!.root
     }
@@ -57,7 +57,7 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             viewModel.order.collect {
                 when (it.isEmpty()) {
-                    true -> {  }
+                    true -> {}
                     else -> {
                         withContext(Dispatchers.Main) {
                             dateOrder.text =
@@ -192,25 +192,18 @@ class OrdersFragment : Fragment(), GoodsClickListener {
 
     private fun hideOrderLayout() {
         binding.orderLayout.apply {
-            visibility = View.VISIBLE
             translationY = 0f
             alpha = 1.0f
             animate()
                 .translationY(-200f)
                 .alpha(0.0f)
-                .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        super.onAnimationEnd(animation)
-                        binding.orderLayout.visibility = View.GONE
-                    }
-                })
+                .setListener(null)
         }
     }
 
     private fun showOrderLayout() {
         binding.orderLayout.apply {
-            visibility = View.VISIBLE
-            translationY = -200f
+            translationY = -100f
             alpha = 0.0f
             animate()
                 .translationY(0f)
@@ -269,22 +262,26 @@ class OrdersFragment : Fragment(), GoodsClickListener {
         }
     }
 
-    override fun onClick(goods: Goods) {
-        viewModel.setChangedGoods(
-            GoodsToChange(
-                item = goods,
-                changeReason = viewModel.changeGoodsReasons[goods.article] ?: ""
-            )
-        )
+    override fun onClick(model: GoodsModel) {
+        when (model) {
+            is Goods -> {
+                viewModel.setChangedGoods(
+                    GoodsToChange(
+                        item = model,
+                        changeReason = viewModel.changeGoodsReasons[model.article] ?: ""
+                    )
+                )
 
-        ChangeGoodsFragment(
-            originalGoods = viewModel.getOriginalGoods(),
-            goodsToChange = viewModel.changedGoods,
-            changedGoodsListener = {
-                viewModel.changedGoods.item = it
+                ChangeGoodsFragment.newInstance(
+                    originalGoods = viewModel.getOriginalGoods(),
+                    changedGoods = viewModel.changedGoods,
+                ).show(parentFragmentManager, ChangeGoodsFragment::class.java.name.toString())
+            }
+            is GoodsToChange -> {
+                viewModel.setChangedGoods(model)
                 viewModel.saveGoods()
             }
-        ).show(parentFragmentManager, ChangeGoodsFragment::class.java.name)
+        }
     }
 
     private fun res(id: Int) = resources.getString(id)

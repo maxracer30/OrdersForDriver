@@ -5,12 +5,13 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.maxstelmakh.ordersfordriver.R
 import ru.maxstelmakh.ordersfordriver.data.orderApi.model.Goods
 import ru.maxstelmakh.ordersfordriver.databinding.GoodsItemBinding
+import ru.maxstelmakh.ordersfordriver.domain.model.GoodsModel
 
 class GoodsViewHolder(
     private val binding: GoodsItemBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(goods: Goods, res: Resources, listener: GoodsClickListener) = with(binding) {
+    fun bind(goods: Goods, res: Resources, listener: ClickListener<GoodsModel>) = with(binding) {
 
         goodsName.text = goods.name
         goodsPrise.text = buildString {
@@ -29,6 +30,5 @@ class GoodsViewHolder(
         root.setOnClickListener {
             listener.onClick(goods)
         }
-
     }
 }
